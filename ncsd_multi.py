@@ -7,9 +7,15 @@
 """
 from os.path import join, realpath, split
 from os import environ, system
-
+import sys
 from sub_modules.data_structures import MinParams
 from sub_modules.ncsd_multi_run import ncsd_multi_run
+
+""" If debugging comment this out!
+It suppresses tracebacks so error messages look cleaner,
+but if you're debugging you want the full mess.
+"""
+sys.tracebacklimit = 0
 
 # deal with environment variables and paths
 try: # make INT_DIR environment variable if it doesn't exist already
@@ -22,7 +28,7 @@ except KeyError:
     int_dir = environ["INT_DIR"]
 ncsd_python_dir = split(realpath(__file__))[0]  # this file's directory
 template_path = join(ncsd_python_dir, "templates") # template and exe are here
-template_path = join(template_path, "mfdp_template.dat")
+mfdp_path = join(template_path, "mfdp_template.dat")
 exe_path = join(template_path, "ncsd-it.exe")
 
 
@@ -30,7 +36,7 @@ exe_path = join(template_path, "ncsd-it.exe")
 # "min" since this is a minimal set needed to describe the input
 min_params = MinParams(
     # paths
-    mfdp_path = template_path,  # template
+    mfdp_path = mfdp_path,  # template
     interactions_directory = int_dir,  # your interactions dir
     ncsd_path = exe_path,  # exe file
     two_body_interaction = "TBMEA2srg-n3lo2.0_14.20_910",  # name of 2-body interaction
