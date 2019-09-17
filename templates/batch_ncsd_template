@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --account=rrg-navratil
+#SBATCH --ntasks=800               # number of MPI processes
+#SBATCH --mem-per-cpu=16384M      # memory; default unit is megabytes
+#SBATCH --time=0-08:00           # time (DD-HH:MM)
+#SBATCH --output=ncsd-%J.out
+
+cd /scratch/callum/ncsd/
+
+potential='NNn3lo_3NlnlcD0.7cE-0.06-srg2.0'
+
+iNu='Li8'
+freq='20'
+suf=''
+Ngs=4
+
+srun ./ncsd-it.exe
+
+for Nmax in 0 2 4 6
+
+do
+
+N=$[$Nmax+$Ngs]
+
+mv mfdp_${N}.egv mfdp_${N}.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}${suf}
+
+done
+
+for Nmax in 8
+
+do
+
+N=$[$Nmax+$Ngs]
+
+mv mfdp_${N}_0.100D-03.egv mfdp_${N}_0.100D-03.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}_IT_kmin10em5${suf}
+mv mfdp_${N}_0.500D-04.egv mfdp_${N}_0.500D-04.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}_IT_kmin5em5${suf}
+mv mfdp_${N}_0.300D-04.egv mfdp_${N}_0.300D-04.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}_IT_kmin3em5${suf}
+mv mfdp_${N}_0.200D-04.egv mfdp_${N}_0.200D-04.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}_IT_kmin2em5${suf}
+#mv mfdp_${N}_0.150D-04.egv mfdp_${N}_0.150D-04.egv_${iNu}_${potential}_Nmax${Nmax}.${freq}_IT_kmin1.5em5${suf}
+
+done
+
+
+
+
+
