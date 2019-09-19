@@ -1,4 +1,4 @@
-# ncsd_python
+# ncsd_multi
 
 Python modules to make your life easy while running `ncsd-it.exe`!
 
