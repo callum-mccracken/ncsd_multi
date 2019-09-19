@@ -11,18 +11,12 @@ import sys
 from sub_modules.data_structures import MinParams
 from sub_modules.ncsd_multi_run import ncsd_multi_run
 
-""" If debugging comment this out!
-It suppresses tracebacks so error messages look cleaner,
-but if you're debugging you want the full mess.
-"""
-sys.tracebacklimit = 0
+sys.tracebacklimit = 0 # If debugging comment this out! It suppresses tracebacks
 
-# deal with environment variables and paths
 try: # make INT_DIR environment variable if it doesn't exist already
     int_dir = environ["INT_DIR"]
 except KeyError:
-    environ["INT_DIR"] = input(
-        "Enter the (full path) directory where your interactions are stored: ")
+    environ["INT_DIR"] = input("Enter the (full path) directory where your interactions are stored: ")
     system("echo 'export INT_DIR=\""+environ["INT_DIR"]+"\"\n' >> ~/.bash_profile")
     system(". ~/.bash_profile")
     int_dir = environ["INT_DIR"]
@@ -31,11 +25,9 @@ template_path = join(ncsd_python_dir, "templates") # template and exe are here
 mfdp_path = join(template_path, "mfdp_template.dat")
 exe_path = join(template_path, "ncsd-it.exe")
 
-
 ### PARAMETERS -- specify all as single parameter or list []
-# "min" since this is a minimal set needed to describe the input
 min_params = MinParams(
-    # paths
+    # paths -- don't change the first three
     mfdp_path = mfdp_path,  # template
     interactions_directory = int_dir,  # your interactions dir
     ncsd_path = exe_path,  # exe file
@@ -70,5 +62,8 @@ min_params = MinParams(
     potential_name = "NNn3lo_3NlnlcD0.7cE-0.06-srg2.0" 
     # name of potential (above) is for output file naming purposes only
 )
+
+# other default parameters can be found at the very bottom of data_structures.py
+# (which is in the sub_modules directory)
 
 ncsd_multi_run(min_params)

@@ -99,6 +99,32 @@ mfdp_keys = [
     "gsn",
     "saved_pivot",
     "rmemavail"]
+default_keys = [
+    "two_body_file_type",
+    "N_min",
+    "iham",
+    "iclmb",
+    "strcm",
+    "major",
+    "nshll",
+    "nsets",
+    "min_nesp",
+    "nskip",
+    "iset1",
+    "ki",
+    "kf",
+    "gs_energy", 
+    "igt",
+    "nhme",
+    "nhw_restart",
+    "cmin",
+    "convergence_delta",
+    "eff_charge_p",
+    "eff_charge_n",
+    "glp",
+    "gln",
+    "gsp",
+    "gsn"]
 
 class Params(object):
     """I created this rather than just using dictionaries or something
@@ -113,6 +139,7 @@ class Params(object):
             "MFDP": mfdp_keys, 
             "MANUAL INPUT": min_keys, 
             "BATCH": batch_keys,
+            "DEFAULT": default_keys,
             "EMPTY": []}
         self.valid_keys = key_map[filetype]
         
@@ -147,3 +174,35 @@ class BatchParams(Params):
 class MFDPParams(Params):
     def __init__(self, **kwargs):
         super(MFDPParams, self).__init__("MFDP", **kwargs)
+
+class DefaultParams(Params):
+    def __init__(self, **kwargs):
+        super(DefaultParams, self).__init__("DEFAULT", **kwargs)
+
+DefaultParamsObj = DefaultParams(
+    two_body_file_type = 2,
+    N_min = 0,
+    iham = 1,
+    iclmb = 0,
+    strcm = 10.0,
+    major = 2,
+    nshll = 0,
+    nsets = 3,
+    min_nesp = 0,
+    nskip = 0,
+    iset1 = 0,
+    ki = 1,
+    kf = 1,
+    gs_energy = 0.0,
+    igt = 0,
+    nhme = 0,
+    nhw_restart = -1,
+    cmin = 0,
+    convergence_delta = 1.0,
+    eff_charge_p = 1.0,
+    eff_charge_n = 0.0,
+    glp = 1.0,
+    gln = 0.0,
+    gsp = 5.586,
+    gsn = -3.826,
+)

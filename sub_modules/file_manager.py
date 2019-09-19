@@ -4,7 +4,9 @@ from os.path import exists
 from argparse import Namespace
 
 from sub_modules.formats import mfdp_format, batch_format
-from sub_modules.data_structures import Params, MFDPParams, mfdp_keys, batch_keys
+from sub_modules.data_structures \
+    import Params, MFDPParams, DefaultParamsObj, \
+        mfdp_keys, batch_keys, default_keys
 from sub_modules.data_checker import manual_input_check, check_mfdp_read
 
 class FileManager(object):
@@ -25,6 +27,9 @@ class FileManager(object):
         elif filetype == "BATCH":
             self.valid_keys = batch_keys
             self.format_string = batch_format
+        elif filetype == "DEFAULT":
+            self.valid_keys = default_keys
+            self.format_string = ""
         elif filetype == "EMPTY":
             self.valid_keys = []
             self.format_string = ""
@@ -245,3 +250,11 @@ class Batch(FileManager):
         self.params = params
 
     # will we ever need to read these?
+
+class Defaults(FileManager):
+    # it's not actually a type of file but I had some code for MFDP files
+    # that I wanted to use with defaults, so I made this
+    def __init__(self,
+       filename="defaults are not from a file", params=DefaultParamsObj):
+        super(Defaults, self).__init__("DEFAULT", filename)
+        self.params = params

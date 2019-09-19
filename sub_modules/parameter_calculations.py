@@ -61,7 +61,7 @@ def nucleus(Z, N):
     return element_name[Z] + str(Z+N)
 
 
-def calc_params(run_dir, min_params, read_params):
+def calc_params(run_dir, min_params, default_params):
     """
         calc_params(MinParams instance, MFDPParams instance)
         --> MFDPParams, BatchParams to be written into a folder for an NCSD run
@@ -72,7 +72,7 @@ def calc_params(run_dir, min_params, read_params):
     """
     # for convenience of typing let's make a couple smaller variable names:
     m = min_params
-    r = read_params
+    d = default_params
 
     # first get nucleus name
     nucleus_name = nucleus(m.Z, m.N)
@@ -139,29 +139,29 @@ def calc_params(run_dir, min_params, read_params):
         saved_pivot = m.saved_pivot,
         rmemavail = m.rmemavail,
         # copied from read_params
-        N_min = r.N_min,
-        iham = r.iham,
-        iclmb = r.iclmb,
-        strcm = r.strcm,
-        major = r.major,
-        nshll = r.nshll,
-        nsets = r.nsets,
-        min_nesp = r.min_nesp,
-        nskip = r.nskip,
-        iset1 = r.iset1,
-        ki = r.ki,
-        kf = r.kf,
-        gs_energy = r.gs_energy, 
-        igt = r.igt,
-        nhme = r.nhme,
-        cmin = r.cmin,
-        convergence_delta = r.convergence_delta,
-        eff_charge_p = r.eff_charge_p,
-        eff_charge_n = r.eff_charge_n,
-        glp = r.glp,
-        gln = r.gln,
-        gsp = r.gsp,
-        gsn = r.gsn,
+        N_min = d.N_min,
+        iham = d.iham,
+        iclmb = d.iclmb,
+        strcm = d.strcm,
+        major = d.major,
+        nshll = d.nshll,
+        nsets = d.nsets,
+        min_nesp = d.min_nesp,
+        nskip = d.nskip,
+        iset1 = d.iset1,
+        ki = d.ki,
+        kf = d.kf,
+        gs_energy = d.gs_energy, 
+        igt = d.igt,
+        nhme = d.nhme,
+        cmin = d.cmin,
+        convergence_delta = d.convergence_delta,
+        eff_charge_p = d.eff_charge_p,
+        eff_charge_n = d.eff_charge_n,
+        glp = d.glp,
+        gln = d.gln,
+        gsp = d.gsp,
+        gsn = d.gsn,
         # more complex calculations done earlier
         occupation_string = occupation_string,
         output_file = output_file
