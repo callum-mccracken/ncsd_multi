@@ -12,23 +12,24 @@ and it'll run multiple ncsd jobs for you.
 
 `git pull origin master` to get the latest version. 
 
-Then you'll need to open `ncsd_multi.py` and tell a bunch of parameters:
+Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
 
 
 ```
     manual_params = MinParams(
-        # paths
-        mfdp_path = "/path/to/some/template/mfdp.dat",
-        interactions_directory = "/path/to/interactions",
-        ncsd_path = "/path/to/ncsd-it.exe",
-        two_body_interaction = "TBMEA2srg-n3lo2.0_14.20_910",
+        ...
+        Z = 3,  # number of protons
+        N = [5,6],  # number of neutrons
+        hbar_omega = 20,  # harmonic oscillator frequency
+        N_1max = 9,  # highest possible excited state of 1 nucleon
+        N_12max = 10,  # highest possible state of 2 nucleons, added
         ...
     )
 ```
 
 There are other parameters which are set by default.
 
-The defaults can be changed by going to the bottom of `data_structures.py`
+The defaults can be changed by going to the very bottom of `data_structures.py`
 and editing the inputs to `DefaultParamsObj`.
 
 
