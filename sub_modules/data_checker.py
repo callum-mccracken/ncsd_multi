@@ -1,6 +1,6 @@
 """contains functions to check various sorts of data"""
 import sys
-from os.path import join, exists
+from os.path import join, exists, split
 from sub_modules.parameter_calculations import Ngs_func
 
 def manual_input_check(params):
@@ -31,11 +31,93 @@ def manual_input_check(params):
         if not (params.N_123max >= params.N_12max):
             raise ValueError("N_123max must be >= N_12max")
 
+    # check that parameters match with filenames
+    try:
+        # TBME file
+        tbme_filename = params.two_body_interaction
+        last_chunk = tbme_filename.split(".")[-1]
+        [hbar_omega_verif_0, other_stuff] = last_chunk.split("_")
+        hbar_omega_verif_0 = float(hbar_omega_verif_0)
+        # see if str(N_1max) + str(N_1max) == other_stuff
+        if other_stuff != str(params.N_1max) + str(params.N_12max):
+            print("\nYour TMBE file doesn't seem to match your parameters!")
+            print("N_1max = "+str(params.N_1max))
+            print("N_12max = "+str(params.N_12max))
+            print("TBME filename = "+tbme_filename)
+            print("relevant section = "+other_stuff)
+            yn = ""
+            while yn not in ["y", "n"]:
+                yn = input("Do you want to continue? (y/n): ")
+            if yn == "y":
+                pass
+            else:
+                sys.exit(0)
+        # see if hbar_omega matches
+        if hbar_omega_verif_0 != params.hbar_omega:
+            print("\nYour TMBE file doesn't seem to match your parameters!")
+            print("hbar_omega = "+str(params.hbar_omega))
+            print("TBME filename = "+tbme_filename)
+            print("hbar_omega from the file is", hbar_omega_verif_0)
+            yn = ""
+            while yn not in ["y", "n"]:
+                yn = input("Do you want to continue? (y/n): ")
+            if yn == "y":
+                pass
+            else:
+                sys.exit(0)
+    except Exception as e:
+        print("Warning:", e)
+        print("Program had issues parsing TBME filename...")
+        print("We assume everything's fine, but double-check!")
+    
+    if three_body:
+        try:
+            # three-body file
+            three_filename = params.three_body_interaction
+            [penultimate_chunk, last_chunk] = three_filename.split(".")[-2:]
+            # get hbar_omega
+            [hbar_omega_verif_1, other_stuff] = last_chunk.split("_")
+            hbar_omega_verif_1 = float(hbar_omega_verif_1)
+            # get N_#max variables
+            n_maxes = penultimate_chunk.split("_")[-1]            
+            # see if str(N_1max) + str(N_1max) == other_stuff
+            if n_maxes != str(params.N_123max) + str(params.N_12max) + str(params.N_1max):
+                print("\nYour 3-body file doesn't seem to match your parameters!")
+                print("N_1max = "+str(params.N_1max))
+                print("N_12max = "+str(params.N_12max))
+                print("N_123max = "+str(params.N_123max))
+                print("3-body filename = "+three_filename)
+                print("relevant section = "+n_maxes)
+                yn = ""
+                while yn not in ["y", "n"]:
+                    yn = input("Do you want to continue? (y/n): ")
+                if yn == "y":
+                    pass
+                else:
+                    sys.exit(0)
+            # see if hbar_omega matches
+            if hbar_omega_verif_1 != params.hbar_omega:
+                print("\nYour 3-body file doesn't seem to match your parameters!")
+                print("hbar_omega = "+str(params.hbar_omega))
+                print("3-body filename = "+three_filename)
+                print("hbar_omega from the file is", hbar_omega_verif_1)
+                yn = ""
+                while yn not in ["y", "n"]:
+                    yn = input("Do you want to continue? (y/n): ")
+                if yn == "y":
+                    pass
+                else:
+                    sys.exit(0)
+        except Exception as e:
+            print("Warning:", e)
+            print("Program had issues parsing 3-body filename...")
+            print("We assume everything's fine, but double-check!")
+
     # check there's at least kappa_points kappa values
     kappa_vals = list(map(float, params.kappa_vals.split()))
     if len(kappa_vals) < params.kappa_points:
         raise ValueError("You must have at least kappa_points kappa values!"+\
-            " kappa_points = "+params.kappa_points)
+            " kappa_points = "+str(params.kappa_points))
     
     # and if kappa_points and kappa_vals disagree, make sure they know that
     if len(kappa_vals) > params.kappa_points:

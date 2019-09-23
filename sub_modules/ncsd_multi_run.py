@@ -122,7 +122,7 @@ def create_dirs(default_data, dict_list):
     # return list of paths to be run
     return batch_paths
 
-def ncsd_multi_run(man_params):
+def ncsd_multi_run(man_params, run=True):
     # check manual input
     print("checking manual input")
     manual_input_check(man_params)
@@ -142,7 +142,10 @@ def ncsd_multi_run(man_params):
     # creates directories with runnable batch files
     batch_paths = create_dirs(default_data, list_of_dicts)
 
-    # run all batch paths
-    print("running all batch files")
-    for batch_path in batch_paths:
-        system("sbatch "+batch_path)
+    # run all batch paths if wanted
+    if run:
+        print("running all batch files")
+        for batch_path in batch_paths:
+            system("sbatch "+batch_path)
+    
+    print("done!")

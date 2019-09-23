@@ -27,6 +27,10 @@ Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
     )
 ```
 
+And at the end there's a line `ncsd_multi_run(min_params, "run")`.
+
+Change the `"run"` to `"don't run"` if you don't want to run all batch files.
+
 There are other parameters which are set by default.
 
 The defaults can be changed by going to the very bottom of `data_structures.py`

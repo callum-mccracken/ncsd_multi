@@ -66,4 +66,6 @@ min_params = MinParams(
 # other default parameters can be found at the very bottom of data_structures.py
 # (which is in the sub_modules directory)
 
-ncsd_multi_run(min_params)
+
+# second parameter controls whether or not to run all batch files at the end
+ncsd_multi_run(min_params, run=True)
