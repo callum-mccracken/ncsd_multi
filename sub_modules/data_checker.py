@@ -1,7 +1,7 @@
 """contains functions to check various sorts of data"""
 import sys
 from os.path import join, exists, split
-from sub_modules.parameter_calculations import Ngs_func
+from .parameter_calculations import Ngs_func
 
 def manual_input_check(params):
     """checks manual input to ensure it is at least self-consistent"""

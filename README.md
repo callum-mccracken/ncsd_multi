@@ -27,9 +27,9 @@ Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
     )
 ```
 
-And at the end there's a line `ncsd_multi_run(min_params, "run")`.
+And at the end there's a line `ncsd_multi_run(min_params, run=True)`.
 
-Change the `"run"` to `"don't run"` if you don't want to run all batch files.
+Change the `True` to `False` if you don't want to run all batch files.
 
 There are other parameters which are set by default.
 

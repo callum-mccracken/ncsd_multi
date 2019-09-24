@@ -3,11 +3,11 @@
 from os.path import exists
 from argparse import Namespace
 
-from sub_modules.formats import mfdp_format, batch_format
-from sub_modules.data_structures \
+from .formats import mfdp_format, batch_format
+from .data_structures \
     import Params, MFDPParams, DefaultParamsObj, \
         mfdp_keys, batch_keys, default_keys
-from sub_modules.data_checker import manual_input_check, check_mfdp_read
+from .data_checker import manual_input_check, check_mfdp_read
 
 class FileManager(object):
     """general class for dealing with files

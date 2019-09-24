@@ -2,8 +2,8 @@
 as well as the mfdp template file"""
 
 from os.path import join
-from sub_modules.data_structures import MFDPParams, BatchParams
-from sub_modules.formats import kappa_rename_format
+from .data_structures import MFDPParams, BatchParams
+from .formats import kappa_rename_format
 
 def Nmin_HO(Z):
     """helper function for Ngs_func"""

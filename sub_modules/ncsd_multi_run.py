@@ -10,10 +10,10 @@ from os.path import realpath, join, exists, abspath
 from shutil import rmtree, copyfile
 
 # our modules
-from sub_modules.data_structures import MinParams
-from sub_modules.parameter_calculations import calc_params, nucleus
-from sub_modules.data_checker import manual_input_check
-from sub_modules.file_manager import MFDP, Batch, Defaults
+from .data_structures import MinParams
+from .parameter_calculations import calc_params, nucleus
+from .data_checker import manual_input_check
+from .file_manager import MFDP, Batch, Defaults
 
 
 def prepare_input(m_params):  # m_params for manual params
