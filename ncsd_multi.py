@@ -16,7 +16,7 @@ from sub_modules.ncsd_multi_run import ncsd_multi_run
 sys.tracebacklimit = 0 # If debugging comment this out! It suppresses tracebacks
 this_dir = split(realpath(__file__))[0]  # this file's directory
 
-# ensure INT_DIR environment variable exists
+# check if INT_DIR environment variable exists, create it if not
 try:
     int_dir = environ["INT_DIR"]
 except KeyError:
@@ -28,13 +28,9 @@ except KeyError:
 ## change this if you're not using the ncsd in the same directory as this script
 ncsd_path = join(this_dir, "ncsd-it.exe")
 
-## set machine name
-machine = "cedar" 
-valid_machines = ["cedar", "summit"]
-if machine not in valid_machines:
-    machine_list = ", ".join(valid_machines)
-    message = "Your machine '"+machine+"' is invalid, use one of: "+machine_list
-    raise ValueError(message)
+## set machine name, make sure it's valid
+machine = "summit" 
+assert machine in ["cedar", "summit"]
 
 ## PARAMETERS -- specify all as single parameter or list []
 man_params = ManParams(
@@ -69,13 +65,16 @@ man_params = ManParams(
     saved_pivot = "F",  # "T" or "F", whether or not to use the saved pivot
 
     # machine-related parameters:
+    # only the required ones will be used, leave the other ones as-is.
+    
+    # input time as "days hours minutes". It will be properly formatted later
+    time = "0 8 0",  # max allowed wall time for the program to runs
     # cedar
     mem_per_core = 16.0, # memory per core, in GB
-    time = "0-08:00",  # DD-HH:MM, time allocated for calculation
     n_mpi_tasks = 200,  # number of MPI tasks
-
     # summit
-
+    n_nodes = 1024  # number of nodes -- num of resource sets is calculated
+    # TODO: do we need to manually adjust any others?
 )
 
 ## other default parameters can be found at the bottom of data_structures.py
@@ -83,4 +82,4 @@ man_params = ManParams(
 
 ## "run" parameter controls whether or not to run all batch files at the end
 paths = [int_dir, ncsd_path]
-ncsd_multi_run(man_params, paths, run=True)
+ncsd_multi_run(man_params, paths, machine, run=True)

@@ -28,8 +28,9 @@ man_keys = [
     "mem_per_core", 
     "time", 
     "n_mpi_tasks", 
-    "potential_name"]
-batch_keys = [
+    "potential_name",
+    "n_nodes"]
+cedar_batch_keys = [
     "run_directory",
     "account",
     "ntasks",
@@ -45,6 +46,23 @@ batch_keys = [
     "non_IT_Nmax",
     "potential_end_bit"
     ]
+summit_batch_keys = [
+    "run_directory",
+    "account",
+    "nnodes",
+    "resource_sets",
+    "time",
+    "output",
+    "potential",
+    "nucleus_name",
+    "hbar_omega",
+    "suffix",
+    "Ngs",
+    "ncsd_path",
+    "non_IT_Nmax",
+    "potential_end_bit"
+    ]
+print(summit_batch_keys)
 mfdp_keys = [
     "output_file",
     "two_body_interaction",
@@ -134,28 +152,33 @@ class Params(object):
         key_map = {
             "MFDP": mfdp_keys, 
             "MANUAL INPUT": man_keys, 
-            "BATCH": batch_keys,
+            "CEDAR_BATCH": cedar_batch_keys,
+            "SUMMIT_BATCH": summit_batch_keys,
             "DEFAULT": default_keys,
             "EMPTY": []}
         self.valid_keys = key_map[filetype]
-        
-        # ensure all kwargs are provided, nothing more
-        if all(key in self.valid_keys for key in kwargs.keys()):
-            if len(kwargs.keys()) == len(self.valid_keys):
-                # then set self.kwarg = kwarg value
-                for key in self.valid_keys:
-                    setattr(self, key, kwargs[key])
-            else:
-                error_message = "Invalid number of parameters for " + filetype\
-                    + "\n\nThere were supposed to be " \
-                    + str(len(self.valid_keys)) + " but there were " \
-                    + str(len(kwargs.keys())) + ".\nThe missing keys are:\n"
 
-                for key in self.valid_keys:
-                    if key not in kwargs.keys():
-                        error_message += key + "\n"
-                
-                raise ValueError(error_message) 
+        # ensure we have the right number of args provided
+        if len(kwargs.keys()) < len(self.valid_keys):
+            error_message = "Not all necessary parameters were provided to "\
+                + filetype + ".\n\nThe missing parameters are:\n"
+            for key in self.valid_keys:
+                if key not in kwargs.keys():
+                    error_message += key+"\n"
+            raise ValueError(error_message)
+        if len(kwargs.keys()) > len(self.valid_keys):
+            error_message = "Too many parameters were provided to "\
+                + filetype + ".\n\nThe extra parameters are:\n"
+            for key in kwargs.keys():
+                if key not in self.valid_keys:
+                    error_message += key+"\n"
+            raise ValueError(error_message)
+
+        # now ensure all args were valid
+        if all(key in self.valid_keys for key in kwargs.keys()):
+            # if so, then set self.kwarg = kwarg value
+            for key in self.valid_keys:
+                setattr(self, key, kwargs[key])
         else:
             error_message = "Not all parameters supplied to " + filetype\
                 + " were valid!\n\nThe invalid parameters are:\n"
@@ -175,9 +198,13 @@ class ManParams(Params):
     def __init__(self, **kwargs):
         super(ManParams, self).__init__("MANUAL INPUT", **kwargs) 
 
-class BatchParams(Params):
+class CedarBatchParams(Params):
     def __init__(self, **kwargs):
-        super(BatchParams, self).__init__("BATCH", **kwargs)
+        super(CedarBatchParams, self).__init__("CEDAR_BATCH", **kwargs)
+
+class SummitBatchParams(Params):
+    def __init__(self, **kwargs):
+        super(SummitBatchParams, self).__init__("SUMMIT_BATCH", **kwargs)
 
 class MFDPParams(Params):
     def __init__(self, **kwargs):

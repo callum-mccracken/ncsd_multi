@@ -3,10 +3,10 @@
 from os.path import exists
 from argparse import Namespace
 
-from .formats import mfdp_format, batch_format
+from .formats import mfdp_format, cedar_batch_format, summit_batch_format
 from .data_structures \
     import Params, MFDPParams, DefaultParamsObj, \
-        mfdp_keys, batch_keys, default_keys
+        mfdp_keys, cedar_batch_keys, summit_batch_keys, default_keys
 from .data_checker import manual_input_check, check_mfdp_read
 
 class FileManager(object):
@@ -24,9 +24,12 @@ class FileManager(object):
         if filetype == "MFDP":
             self.valid_keys = mfdp_keys
             self.format_string = mfdp_format
-        elif filetype == "BATCH":
-            self.valid_keys = batch_keys
-            self.format_string = batch_format
+        elif filetype == "CEDAR_BATCH":
+            self.valid_keys = cedar_batch_keys
+            self.format_string = cedar_batch_format
+        elif filetype == "SUMMIT_BATCH":
+            self.valid_keys = summit_batch_keys
+            self.format_string = summit_batch_format
         elif filetype == "DEFAULT":
             self.valid_keys = default_keys
             self.format_string = ""
@@ -243,14 +246,18 @@ class MFDP(FileManager):
         check_mfdp_read(params)
         self.params = params
 
-class Batch(FileManager):
-    """ class for writing batch files for NCSD code """
-    
+class CedarBatch(FileManager):
+    """ class for writing batch files for NCSD code, on Cedar machine """
     def __init__(self, filename="batch_ncsd", params=None):
-        super(Batch, self).__init__("BATCH", filename)
+        super(CedarBatch, self).__init__("CEDAR_BATCH", filename)
         self.params = params
 
-    # will we ever need to read these?
+class SummitBatch(FileManager):
+    """ class for writing batch files for NCSD code, on Summit machine """
+    def __init__(self, filename="batch_ncsd", params=None):
+        super(SummitBatch, self).__init__("SUMMIT_BATCH", filename)
+        self.params = params
+
 
 class Defaults(FileManager):
     # it's not actually a type of file but I had some code for MFDP files

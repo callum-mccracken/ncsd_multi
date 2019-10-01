@@ -45,10 +45,7 @@ Effective operators:
 *******************************  End of input  *******************************
 """
 
-
-
-
-batch_format = """#!/bin/bash
+cedar_batch_format = """#!/bin/bash
 #SBATCH --account={account}
 #SBATCH --ntasks={ntasks}               # number of MPI processes
 #SBATCH --mem-per-cpu={mem_per_cpu}      # memory; default unit is megabytes
@@ -80,6 +77,66 @@ done
 
 """
 
+summit_batch_format = """#!/bin/bash
+
+#BSUB -P {account}
+#BSUB -W {time}
+#BSUB -nnodes {nnodes}
+#BSUB -J {output}
+#BSUB -eo {output}.%J
+
+cd {run_directory}
+date
+
+#module loading needs cuda and for some
+#reason also lapack as a separate load
+module load cuda
+module load netlib-lapack/3.8.0
+module load gcc
+
+#SUMMIT job submission is based on "resource sets"
+#so the main thing you submit is "number of resource sets"
+#to run efficiently, each resource set has 1 gpu and 7 cpus
+#and we run with 6 resource sets per node. This is forced
+#by the fact that there are 6 gpus per node and we want each
+#to go to a separate resource set.
+
+#full load of node 7 x 6 = 42
+export OMP_NUM_THREADS=7
+
+#options:
+# -n : number of resource sets TOTAL (nodes x resoure sets per node)
+# -a : number of MPI tasks per resource set
+# -c : number of CPUs per resource set
+# -g : number og GPUs per resource set
+# -r : number of resource sets per node
+# -l CPU-CPU : optimize CPU memory latency
+# -d packed -b rs: pack the resource sets on the node
+
+jsrun -n {resource_sets} -a 1 -c 7 -g 1 -r 6 -l CPU-CPU -d packed -b rs {ncsd_path}
+
+date
+
+potential='{potential}'
+iNu='{nucleus_name}'
+freq='{hbar_omega}'
+suf='{suffix}'
+Ngs={Ngs}
+
+for Nmax in {non_IT_Nmax}
+
+do
+
+N=$[$Nmax+$Ngs]
+
+mv mfdp_${{N}}.egv mfdp_${{N}}.egv_${{iNu}}_${{potential}}_Nmax${{Nmax}}.${{freq}}${{suf}}
+
+done
+
+{potential_end_bit}
+"""
+
+
 potential_end_bit_format = """
 for Nmax in {IT_Nmax}
 
@@ -88,6 +145,8 @@ do
 N=$[$Nmax+$Ngs]
 
 {kappa_rename}
-done"""
+done
+"""
 
 kappa_rename_format = """mv mfdp_${{N}}{kappa_D}.egv mfdp_${{N}}_{kappa_D}.egv_${{iNu}}_${{potential}}_Nmax${{Nmax}}.${{freq}}_IT_kmin{kappa_em}${{suf}}"""
+

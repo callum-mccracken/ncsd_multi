@@ -2,7 +2,7 @@
 as well as the mfdp template file"""
 
 from os.path import join
-from .data_structures import MFDPParams, BatchParams
+from .data_structures import MFDPParams, CedarBatchParams, SummitBatchParams
 from .formats import kappa_rename_format, potential_end_bit_format
 
 def Nmin_HO(Z):
@@ -61,7 +61,7 @@ def nucleus(Z, N):
     return element_name[Z] + str(Z+N)
 
 
-def calc_params(run_dir, paths, min_params, default_params):
+def calc_params(run_dir, paths, min_params, default_params, machine):
     """
         calc_params(MinParams instance, MFDPParams instance)
         --> MFDPParams, BatchParams to be written into a folder for an NCSD run
@@ -170,9 +170,9 @@ def calc_params(run_dir, paths, min_params, default_params):
     # the expressions here are a little gross, but we just take the numbers,
     # make them strings, and join them with spaces: something like " 0 2 4 6"
     non_IT_Nmax = " ".join(map(str, list(
-        range(m.Nmax_min, nhw_min, 2))))  # from NMax_min...
+        range(m.Nmax_min, nhw_min, 2))))  # from Nmax_min...
     IT_Nmax = " ".join(map(str, list(
-        range(nhw_min, m.Nmax_max + 1, 2))))  # up to NMax_max
+        range(nhw_min, m.Nmax_max + 1, 2))))  # up to Nmax_max
 
     # a few functions for converting kappa values
     def kappa_D(kappa_given):
@@ -202,27 +202,51 @@ def calc_params(run_dir, paths, min_params, default_params):
     
     potential_end = ""
     if IT_Nmax != "":
-        print("yeet")
         potential_end = potential_end_bit_format.format(
             IT_Nmax = IT_Nmax, kappa_rename = kappa_rename)
 
+    days, hours, minutes = map(int, m.time.split())
+
+    cedar_time = "{}-{:02}:{:02}".format(days, hours, minutes)
+    summit_time = "{}:{:02}".format(days*24 + hours, minutes)
+
     # organize parameters
-    batch_parameters = BatchParams(
-        run_directory = run_dir,
-        account = "rrg-navratil",
-        ntasks = m.n_mpi_tasks,
-        mem_per_cpu = str(int(m.mem_per_core * 1024))+"M",
-        time = m.time,
-        output = "ncsd-%J.out",
-        potential = m.potential_name,
-        nucleus_name = nucleus_name,
-        hbar_omega = int(m.hbar_omega),
-        suffix = "_"+str(m.n_states)+"st",
-        Ngs = Ngs,
-        ncsd_path = ncsd_path,
-        non_IT_Nmax = non_IT_Nmax,
-        potential_end_bit = potential_end
+    if machine == "cedar":
+        batch_parameters = CedarBatchParams(
+            run_directory = run_dir,
+            account = "rrg-navratil",
+            ntasks = m.n_mpi_tasks,
+            mem_per_cpu = str(int(m.mem_per_core * 1024))+"M",
+            time = cedar_time,
+            output = "ncsd-%J.out",
+            potential = m.potential_name,
+            nucleus_name = nucleus_name,
+            hbar_omega = int(m.hbar_omega),
+            suffix = "_"+str(m.n_states)+"st",
+            Ngs = Ngs,
+            ncsd_path = ncsd_path,
+            non_IT_Nmax = non_IT_Nmax,
+            potential_end_bit = potential_end
         )
+    elif machine == "summit":
+        batch_parameters = SummitBatchParams(
+            run_directory = run_dir,
+            account = "nph123",
+            nnodes = m.n_nodes,
+            time = summit_time,
+            resource_sets = 6 * m.n_nodes,
+            output = "ncsd-run_"+nucleus_name+".out",
+            potential = m.potential_name,
+            nucleus_name = nucleus_name,
+            hbar_omega = int(m.hbar_omega),
+            suffix = "_"+str(m.n_states)+"st",
+            Ngs = Ngs,
+            ncsd_path = ncsd_path,
+            non_IT_Nmax = non_IT_Nmax,
+            potential_end_bit = potential_end
+        )
+    else:
+        raise ValueError("What machine are you using?")
     return mfdp_parameters, batch_parameters
 
 if __name__ == "__main__":

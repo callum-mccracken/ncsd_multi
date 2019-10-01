@@ -2,49 +2,52 @@
 import sys
 from os.path import join, exists, split
 import os
+import re
 from .parameter_calculations import Ngs_func
 
-def manual_input_check(params, paths):
-    int_dir, ncsd_path = paths
+def manual_input_check(manual_params, machine, paths):
     """checks manual input to ensure it is at least self-consistent"""
     print("checking manual input")
+    m = manual_params  # so we don't have to type out manual_params everywhere
+    
+    int_dir, ncsd_path = paths
     # do we have a 3-body interaction?
-    three_body = (abs(params.interaction_type) == 3)
+    three_body = (abs(m.interaction_type) == 3)
     
     # first check if paths exist
     if not exists(int_dir):
         raise IOError("Interactions directory " + \
             int_dir + " does not exist")
 
-    f2 = join(int_dir, params.two_body_interaction)
+    f2 = join(int_dir, m.two_body_interaction)
     if not exists(f2):
         raise IOError("Two body file "+f2+" does not exist")
     if three_body:
-        f3 = join(int_dir, params.three_body_interaction)
+        f3 = join(int_dir, m.three_body_interaction)
         if not exists(f3):
             raise IOError("Three body file "+f3+" does not exist")
     if not exists(ncsd_path):
         raise IOError("NCSD file "+ncsd_path+" does not exist!")
 
     # check that parameters make sense
-    if not (params.N_12max >= params.N_1max):
+    if not (m.N_12max >= m.N_1max):
         raise ValueError("N_12max must be >= N_1max")
     if three_body:
-        if not (params.N_123max >= params.N_12max):
+        if not (m.N_123max >= m.N_12max):
             raise ValueError("N_123max must be >= N_12max")
 
     # check that parameters match with filenames
     try:
         # TBME file
-        tbme_filename = params.two_body_interaction
+        tbme_filename = m.two_body_interaction
         last_chunk = tbme_filename.split(".")[-1]
         [hbar_omega_verif_0, other_stuff] = last_chunk.split("_")
         hbar_omega_verif_0 = float(hbar_omega_verif_0)
         # see if str(N_1max) + str(N_1max) == other_stuff
-        if other_stuff != str(params.N_1max) + str(params.N_12max):
+        if other_stuff != str(m.N_1max) + str(m.N_12max):
             print("\nYour TMBE file doesn't seem to match your parameters!")
-            print("N_1max = "+str(params.N_1max))
-            print("N_12max = "+str(params.N_12max))
+            print("N_1max = "+str(m.N_1max))
+            print("N_12max = "+str(m.N_12max))
             print("TBME filename = "+tbme_filename)
             print("relevant section = "+other_stuff)
             yn = ""
@@ -55,9 +58,9 @@ def manual_input_check(params, paths):
             else:
                 sys.exit(0)
         # see if hbar_omega matches
-        if hbar_omega_verif_0 != params.hbar_omega:
+        if hbar_omega_verif_0 != m.hbar_omega:
             print("\nYour TMBE file doesn't seem to match your parameters!")
-            print("hbar_omega = "+str(params.hbar_omega))
+            print("hbar_omega = "+str(m.hbar_omega))
             print("TBME filename = "+tbme_filename)
             print("hbar_omega from the file is", hbar_omega_verif_0)
             yn = ""
@@ -75,7 +78,7 @@ def manual_input_check(params, paths):
     if three_body:
         try:
             # three-body file
-            three_filename = params.three_body_interaction
+            three_filename = m.three_body_interaction
             [penultimate_chunk, last_chunk] = three_filename.split(".")[-2:]
             # get hbar_omega
             [hbar_omega_verif_1, other_stuff] = last_chunk.split("_")
@@ -83,11 +86,11 @@ def manual_input_check(params, paths):
             # get N_#max variables
             n_maxes = penultimate_chunk.split("_")[-1]            
             # see if str(N_1max) + str(N_1max) == other_stuff
-            if n_maxes != str(params.N_123max) + str(params.N_12max) + str(params.N_1max):
+            if n_maxes != str(m.N_123max) + str(m.N_12max) + str(m.N_1max):
                 print("\nYour 3-body file doesn't seem to match your parameters!")
-                print("N_1max = "+str(params.N_1max))
-                print("N_12max = "+str(params.N_12max))
-                print("N_123max = "+str(params.N_123max))
+                print("N_1max = "+str(m.N_1max))
+                print("N_12max = "+str(m.N_12max))
+                print("N_123max = "+str(m.N_123max))
                 print("3-body filename = "+three_filename)
                 print("relevant section = "+n_maxes)
                 yn = ""
@@ -98,9 +101,9 @@ def manual_input_check(params, paths):
                 else:
                     sys.exit(0)
             # see if hbar_omega matches
-            if hbar_omega_verif_1 != params.hbar_omega:
+            if hbar_omega_verif_1 != m.hbar_omega:
                 print("\nYour 3-body file doesn't seem to match your parameters!")
-                print("hbar_omega = "+str(params.hbar_omega))
+                print("hbar_omega = "+str(m.hbar_omega))
                 print("3-body filename = "+three_filename)
                 print("hbar_omega from the file is", hbar_omega_verif_1)
                 yn = ""
@@ -116,16 +119,16 @@ def manual_input_check(params, paths):
             print("We assume everything's fine, but double-check!")
 
     # check there's at least kappa_points kappa values
-    kappa_vals = list(map(float, params.kappa_vals.split()))
-    if len(kappa_vals) < params.kappa_points:
+    kappa_vals = list(map(float, m.kappa_vals.split()))
+    if len(kappa_vals) < m.kappa_points:
         raise ValueError("You must have at least kappa_points kappa values!"+\
-            " kappa_points = "+str(params.kappa_points))
+            " kappa_points = "+str(m.kappa_points))
     
     # and if kappa_points and kappa_vals disagree, make sure they know that
-    if len(kappa_vals) > params.kappa_points:
+    if len(kappa_vals) > m.kappa_points:
         print("Did you mean to enter "+str(len(kappa_vals))+\
             " values for kappa_min, but set kappa_points to "+\
-            str(params.kappa_points)+"?")
+            str(m.kappa_points)+"?")
         
         user_input = ""
         while user_input not in ["Y", "N"]:
@@ -135,16 +138,17 @@ def manual_input_check(params, paths):
             sys.exit(0)
 
     kr_values = [-1, 1, 2, 3, 4]
-    if params.kappa_restart not in kr_values:
-        raise ValueError("kappa_restart must be one of"+" ".join(kr_values))
+    if m.kappa_restart not in kr_values:
+        raise ValueError("kappa_restart must be one of"+\
+            " ".join(map(str, kr_values)))
     
-    if params.saved_pivot not in ["F", "T"]:
+    if m.saved_pivot not in ["F", "T"]:
         raise ValueError("saved_pivot must be either T or F")
     
-    if (params.irest == 1 or params.kappa_restart != -1
-       or params.nhw_restart != -1) and params.saved_pivot == "F":
+    if (m.irest == 1 or m.kappa_restart != -1
+       or m.nhw_restart != -1) and m.saved_pivot == "F":
         raise ValueError("why not use the saved pivot if you're restarting?")
-    
+
     
     # if this function runs, the input passes the test
 

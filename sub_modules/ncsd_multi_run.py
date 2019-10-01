@@ -13,7 +13,7 @@ from shutil import rmtree, copyfile
 from .data_structures import ManParams
 from .parameter_calculations import calc_params, nucleus
 from .data_checker import manual_input_check
-from .file_manager import MFDP, Batch, Defaults
+from .file_manager import MFDP, CedarBatch, SummitBatch, Defaults
 
 
 def prepare_input(m_params):  # m_params for manual params
@@ -56,10 +56,10 @@ def prepare_input(m_params):  # m_params for manual params
         dict_list.append(new_dict)
     return dict_list
 
-def create_dirs(default_data, dict_list, paths):
+def create_dirs(defaults, dict_list, paths, machine):
     print("creating directories to store run files")    
     # the creation of this function was mostly to get intellisense to chill
-    def populate_dir(default_data, man_params, paths):
+    def populate_dir(defaults, man_params, paths, machine):
         """
             Each folder will need:
             - mfdp.dat --> we'll create this from defaults + manual input
@@ -82,10 +82,9 @@ def create_dirs(default_data, dict_list, paths):
         # ensure we don't overwrite
         if exists(dir_name):
             new_name = input("Run '"+run_name+"' already exists. \n"\
-                "Enter new name, or enter empty string to overwrite: ")
+                "Enter new name, or hit enter to overwrite: ")
             if new_name:
                 dir_name = realpath(join(master_folder, new_name))
-                # TODO: do we need this: default_data.output_file = new_name
             else:
                 #remove it and start from scratch    
                 rmtree(dir_name)
@@ -94,9 +93,9 @@ def create_dirs(default_data, dict_list, paths):
         
         # now actually calculate the parameters to write out
         [mfdp_params, batch_params] = calc_params(
-            dir_name, paths, man_params, default_data.params)
+            dir_name, paths, man_params, defaults.params, machine)
 
-        # also be sure that all the batch files actually know where their exe is
+        # be sure that all the batch files actually know where their exe is
         batch_params.ncsd_path = realpath(join(dir_name, "ncsd-it.exe"))
         
         print("writing files")
@@ -109,7 +108,10 @@ def create_dirs(default_data, dict_list, paths):
         
         # write batch file
         batch_path = realpath(join(dir_name, "batch_ncsd"))
-        Batch(filename=batch_path, params=batch_params).write()
+        if machine == "cedar":
+           CedarBatch(filename=batch_path, params=batch_params).write()
+        elif machine == "summit":
+           SummitBatch(filename=batch_path, params=batch_params).write()
 
         # then tell the program where it is so we can run it later
         return batch_path
@@ -118,34 +120,34 @@ def create_dirs(default_data, dict_list, paths):
     batch_paths = []
     for man_params_dict in dict_list:
         man_params = ManParams(**man_params_dict)
-        batch_paths.append(populate_dir(default_data, man_params, paths))
+        batch_paths.append(
+            populate_dir(defaults, man_params, paths, machine)
+        )
     # return list of paths to be run
     return batch_paths
 
-def ncsd_multi_run(man_params, paths, run=True):
+def ncsd_multi_run(man_params, paths, machine, run=True):
     # check manual input
     print("checking manual input")
-    manual_input_check(man_params, paths)
-    
-    
-    # if reading data from mfdp template (deprecated)
-    read_from_mfdp = False
-    if read_from_mfdp:
-        # returns data from mfdp file
-        default_data = MFDP(filename=man_params.mfdp_path)
-    else:
-        # get data from defualts object
-        default_data = Defaults()
+    manual_input_check(man_params, machine, paths)
+
+    # get default parameters
+    defaults = Defaults()
 
     # list of dicts which contain parameters for each run
     list_of_dicts = prepare_input(man_params)
     # creates directories with runnable batch files
-    batch_paths = create_dirs(default_data, list_of_dicts, paths)
+    batch_paths = create_dirs(defaults, list_of_dicts, paths, machine)
 
     # run all batch paths if wanted
     if run:
         print("running all batch files")
         for batch_path in batch_paths:
-            system("sbatch "+batch_path)
-    
+            if machine == "cedar":
+                system("sbatch "+batch_path)
+            elif machine == "summit":
+                system("bsub "+batch_path)
+            else:
+                raise ValueError("Invalid machine!")
+
     print("done!")
