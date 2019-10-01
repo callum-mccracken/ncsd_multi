@@ -16,7 +16,7 @@ Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
 
 
 ```
-    manual_params = MinParams(
+    manual_params = ManParams(
         ...
         Z = 3,  # number of protons
         N = [5,6],  # number of neutrons
@@ -65,6 +65,5 @@ Note: make sure to edit the 3-body parameters if `abs(interaction_type) == 3`.
 
 Just Python (3.7.4 ideally, other versions may work).
 
-Also be sure the `templates` directory is present, the scripts need that.
-
-No other libraries or downloads or anything are needed.
+Also if you don't want to use the version of `ncsd-it.exe` that ships with this repository,
+make sure you know the full path to the one you do want to use.
