@@ -64,3 +64,6 @@ Note: make sure to edit the 3-body parameters if `abs(interaction_type) == 3`.
 ### Prerequisites
 
 Just Python (3.7.4 ideally, other versions may work).
+
+Also if you don't want to use the version of `ncsd-it.exe` that ships with this repository,
+make sure you know the full path to the one you do want to use.
