@@ -1,8 +1,6 @@
 """ module for dealing with reading/writing files for NCSD code """
 
 from os.path import exists
-from argparse import Namespace
-
 from .formats import mfdp_format, cedar_batch_format, summit_batch_format
 from .data_structures \
     import Params, MFDPParams, DefaultParamsObj, \
