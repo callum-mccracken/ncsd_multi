@@ -1,49 +1,61 @@
-"""overview: facilitates running ncsd-it.exe with many nuclei
+"""
+ncsd_multi.py: facilitates running ncsd-it.exe with many nuclei
+
 - takes sets of inputs for ncsd-it.exe runs
 - then, for each run:
     - makes a folder so each run's output is contained, copies exe file
     - makes a bunch of mfdp.dat files to complete each run
-    - runs each process with sbatch at the end
+    - runs each process at the end, if desired
 """
 from os.path import join, realpath, split
 from os import environ, system
 import sys
-from sub_modules.data_structures import MinParams
+from sub_modules.data_structures import ManParams
 from sub_modules.ncsd_multi_run import ncsd_multi_run
 
 sys.tracebacklimit = 0 # If debugging comment this out! It suppresses tracebacks
+this_dir = split(realpath(__file__))[0]  # this file's directory
 
-try: # make INT_DIR environment variable if it doesn't exist already
+# ensure INT_DIR environment variable exists
+try:
     int_dir = environ["INT_DIR"]
 except KeyError:
     environ["INT_DIR"] = input("Enter the (full path) directory where your interactions are stored: ")
     system("echo 'export INT_DIR=\""+environ["INT_DIR"]+"\"\n' >> ~/.bash_profile")
     system(". ~/.bash_profile")
     int_dir = environ["INT_DIR"]
-ncsd_python_dir = split(realpath(__file__))[0]  # this file's directory
-template_path = join(ncsd_python_dir, "templates") # template and exe are here
-mfdp_path = join(template_path, "mfdp_template.dat")
-exe_path = join(template_path, "ncsd-it.exe")
 
-### PARAMETERS -- specify all as single parameter or list []
-min_params = MinParams(
-    # paths -- don't change the first three
-    mfdp_path = mfdp_path,  # template
-    interactions_directory = int_dir,  # your interactions dir
-    ncsd_path = exe_path,  # exe file
-    two_body_interaction = "TBMEA2srg-n3lo2.0_14.20_910",  # name of 2-body interaction
+## change this if you're not using the ncsd in the same directory as this script
+ncsd_path = join(this_dir, "ncsd-it.exe")
+
+## set machine name
+machine = "cedar" 
+valid_machines = ["cedar", "summit"]
+if machine not in valid_machines:
+    machine_list = ", ".join(valid_machines)
+    message = "Your machine '"+machine+"' is invalid, use one of: "+machine_list
+    raise ValueError(message)
+
+## PARAMETERS -- specify all as single parameter or list []
+man_params = ManParams(
     # nucleus details:
     Z = 3,  # number of protons
     N = [5,6],  # number of neutrons
     hbar_omega = 20,  # harmonic oscillator frequency
     N_1max = 9,  # highest possible excited state of 1 nucleon
     N_12max = 10,  # highest possible state of 2 nucleons, added
-    # if 3-body, change these, otherwise just leave them be:
+    # if 3-body, change this and interaction name, otherwise just leave them be
     N_123max = 11, # highest possible state of 3 nucleons, added
-    three_body_interaction = "v3trans_J3T3.int_3NFlocnonloc-srg2.0_from24_220_11109.20_comp",  # name of 3-body interaction
+    
+    # interaction names, these files must be within int_dir
+    two_body_interaction = "TBMEA2srg-n3lo2.0_14.20_910",
+    three_body_interaction = "v3trans_J3T3.int_3NFlocnonloc-srg2.0_from24_220_11109.20_comp",
+    # potential is just for naming purposes, does not affect calculations
+    potential_name = "NNn3lo_3NlnlcD0.7cE-0.06-srg2.0",
+    
     # computation-related parameters:
     Nmax_min = 0,  # Nmax_min and Nmax_max control how long the program runs
-    Nmax_max = 8,  # i.e. 0 - 8 will give you eigenvectors for Nmax = 0,2,...,8
+    Nmax_max = 8,  # e.g. 0 - 8 will give you eigenvectors for Nmax = 0,2,...,8
     Nmax_IT = 12,  # Nmax for Importance Truncation
     interaction_type = -3,  # make sure abs(interaction_type)==3 for 3-body
     n_states = 10,  # number of final states (= number of energy values)
@@ -55,17 +67,20 @@ min_params = MinParams(
     kappa_vals = "2.0 3.0 5.0 10.0",  # values for kappa, in increasing order
     kappa_restart = -1,  # -1 for false, else some value between 1 and 4
     saved_pivot = "F",  # "T" or "F", whether or not to use the saved pivot
-    # batch file parameters:
-    rmemavail = 16.0, # memory per core, in GB
+
+    # machine-related parameters:
+    # cedar
+    mem_per_core = 16.0, # memory per core, in GB
     time = "0-08:00",  # DD-HH:MM, time allocated for calculation
-    ntasks = 200,  # number of MPI tasks
-    potential_name = "NNn3lo_3NlnlcD0.7cE-0.06-srg2.0" 
-    # name of potential (above) is for output file naming purposes only
+    n_mpi_tasks = 200,  # number of MPI tasks
+
+    # summit
+
 )
 
-# other default parameters can be found at the very bottom of data_structures.py
-# (which is in the sub_modules directory)
+## other default parameters can be found at the bottom of data_structures.py
+## (which is in the sub_modules directory)
 
-
-# second parameter controls whether or not to run all batch files at the end
-ncsd_multi_run(min_params, run=True)
+## "run" parameter controls whether or not to run all batch files at the end
+paths = [int_dir, ncsd_path]
+ncsd_multi_run(man_params, paths, run=True)

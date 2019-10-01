@@ -1,28 +1,30 @@
 """contains functions to check various sorts of data"""
 import sys
 from os.path import join, exists, split
+import os
 from .parameter_calculations import Ngs_func
 
-def manual_input_check(params):
+def manual_input_check(params, paths):
+    int_dir, ncsd_path = paths
     """checks manual input to ensure it is at least self-consistent"""
     print("checking manual input")
     # do we have a 3-body interaction?
     three_body = (abs(params.interaction_type) == 3)
     
     # first check if paths exist
-    if not exists(params.interactions_directory):
+    if not exists(int_dir):
         raise IOError("Interactions directory " + \
-            params.interactions_directory + " does not exist")
+            int_dir + " does not exist")
 
-    f2 = join(params.interactions_directory, params.two_body_interaction)
+    f2 = join(int_dir, params.two_body_interaction)
     if not exists(f2):
         raise IOError("Two body file "+f2+" does not exist")
     if three_body:
-        f3 = join(params.interactions_directory, params.three_body_interaction)
+        f3 = join(int_dir, params.three_body_interaction)
         if not exists(f3):
             raise IOError("Three body file "+f3+" does not exist")
-    if not exists(params.ncsd_path):
-        raise IOError("NCSD file "+params.ncsd_path+" does not exist!")
+    if not exists(ncsd_path):
+        raise IOError("NCSD file "+ncsd_path+" does not exist!")
 
     # check that parameters make sense
     if not (params.N_12max >= params.N_1max):
@@ -206,11 +208,11 @@ def check_mfdp_read(mfdp_params):
     
     # mod 2 checks
     if ((mfdp_params.Z + mfdp_params.N) % 2) == 0:
-        if mfdp_params.total_2Mz != 0:
-            message = "Z + N is even, so total_2Mz must be 0, not "+str(mfdp_params.total_2Mz)
+        if mfdp_params.total_2Jz != 0:
+            message = "Z + N is even, so total_2Jz must be 0, not "+str(mfdp_params.total_2Jz)
     else:
-        if mfdp_params.total_2Mz != 1:
-            message = "Z + N is odd, so total_2Mz must be 1, not "+str(mfdp_params.total_2Mz)
+        if mfdp_params.total_2Jz != 1:
+            message = "Z + N is odd, so total_2Jz must be 1, not "+str(mfdp_params.total_2Jz)
 
     if mfdp_params.parity != (mfdp_params.Nhw % 2):
         message = "we require parity = Nhw mod 2"

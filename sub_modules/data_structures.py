@@ -4,10 +4,7 @@ they have attributes for every field in the data files, e.g. mfdp.dat files
 have a field for Z, so a MFDPParams object has an attribute .Z
 """
 # all the required/allowed fields for each data structure
-min_keys = [
-    "mfdp_path", 
-    "interactions_directory", 
-    "ncsd_path", 
+man_keys = [
     "two_body_interaction", 
     "Z", 
     "N", 
@@ -28,9 +25,9 @@ min_keys = [
     "kappa_vals", 
     "kappa_restart",
     "saved_pivot", 
-    "rmemavail", 
+    "mem_per_core", 
     "time", 
-    "ntasks", 
+    "n_mpi_tasks", 
     "potential_name"]
 batch_keys = [
     "run_directory",
@@ -46,8 +43,7 @@ batch_keys = [
     "Ngs",
     "ncsd_path",
     "non_IT_Nmax",
-    "IT_Nmax",
-    "kappa_rename"
+    "potential_end_bit"
     ]
 mfdp_keys = [
     "output_file",
@@ -61,7 +57,7 @@ mfdp_keys = [
     "N_1max",
     "N_12max",
     "parity",
-    "total_2Mz",
+    "total_2Jz",
     "iham",
     "iclmb",
     "strcm",
@@ -137,7 +133,7 @@ class Params(object):
     def __init__(self, filetype, **kwargs):
         key_map = {
             "MFDP": mfdp_keys, 
-            "MANUAL INPUT": min_keys, 
+            "MANUAL INPUT": man_keys, 
             "BATCH": batch_keys,
             "DEFAULT": default_keys,
             "EMPTY": []}
@@ -150,11 +146,23 @@ class Params(object):
                 for key in self.valid_keys:
                     setattr(self, key, kwargs[key])
             else:
-                raise ValueError(
-                    "Invalid number of parameters for "+filetype) 
+                error_message = "Invalid number of parameters for " + filetype\
+                    + "\n\nThere were supposed to be " \
+                    + str(len(self.valid_keys)) + " but there were " \
+                    + str(len(kwargs.keys())) + ".\nThe missing keys are:\n"
+
+                for key in self.valid_keys:
+                    if key not in kwargs.keys():
+                        error_message += key + "\n"
+                
+                raise ValueError(error_message) 
         else:
-            raise ValueError(
-                "Not all parameters supplied to "+filetype+" were valid!")
+            error_message = "Not all parameters supplied to " + filetype\
+                + " were valid!\n\nThe invalid parameters are:\n"
+            for key in kwargs.keys():
+                if key not in self.valid_keys:
+                    error_message += key+"\n"
+            raise ValueError(error_message)
 
     def param_dict(self):
         """returns a dict with the same info contained in the Params object"""
@@ -163,9 +171,9 @@ class Params(object):
             pdict[key] = getattr(self, key)
         return pdict
 
-class MinParams(Params):
+class ManParams(Params):
     def __init__(self, **kwargs):
-        super(MinParams, self).__init__("MANUAL INPUT", **kwargs) 
+        super(ManParams, self).__init__("MANUAL INPUT", **kwargs) 
 
 class BatchParams(Params):
     def __init__(self, **kwargs):

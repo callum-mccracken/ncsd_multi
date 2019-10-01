@@ -57,7 +57,8 @@ class MFDP(FileManager):
         else:
             raise IOError("must have either a params object or a filename")  
 
-    def read(self):  
+    def read(self):
+        """this is old, sketchy, and deprecated! Don't use if you can avoid!"""
         # open file, grab text
         with open(self.filename, "r") as open_file:
             lines = open_file.readlines()
@@ -88,7 +89,7 @@ class MFDP(FileManager):
             elif line_num == 4:
                 Nhw = int(words[0])
                 parity = int(words[1])
-                total_2Mz = int(words[2])
+                total_2Jz = int(words[2])
                 line_num += 1
             elif line_num == 5:
                 N_min = int(words[0])
@@ -193,7 +194,7 @@ class MFDP(FileManager):
             N_1max = N_1max,
             N_12max = N_12max,
             parity = parity,
-            total_2Mz = total_2Mz,
+            total_2Jz = total_2Jz,
             iham = iham,
             iclmb = iclmb,
             strcm = strcm,

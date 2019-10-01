@@ -10,7 +10,7 @@ from os.path import realpath, join, exists, abspath
 from shutil import rmtree, copyfile
 
 # our modules
-from .data_structures import MinParams
+from .data_structures import ManParams
 from .parameter_calculations import calc_params, nucleus
 from .data_checker import manual_input_check
 from .file_manager import MFDP, Batch, Defaults
@@ -56,10 +56,10 @@ def prepare_input(m_params):  # m_params for manual params
         dict_list.append(new_dict)
     return dict_list
 
-def create_dirs(default_data, dict_list):
-    print("creating directories to store run files")
+def create_dirs(default_data, dict_list, paths):
+    print("creating directories to store run files")    
     # the creation of this function was mostly to get intellisense to chill
-    def populate_dir(default_data, man_params):
+    def populate_dir(default_data, man_params, paths):
         """
             Each folder will need:
             - mfdp.dat --> we'll create this from defaults + manual input
@@ -68,7 +68,7 @@ def create_dirs(default_data, dict_list):
         """
 
         chdir(realpath(join(__file__, "..", "..")))
-        ncsd_path = man_params.ncsd_path
+        int_dir, ncsd_path = paths
 
         # create master directory to hold runs
         master_folder = "ncsd_runs"
@@ -94,7 +94,7 @@ def create_dirs(default_data, dict_list):
         
         # now actually calculate the parameters to write out
         [mfdp_params, batch_params] = calc_params(
-            dir_name, man_params, default_data.params)
+            dir_name, paths, man_params, default_data.params)
 
         # also be sure that all the batch files actually know where their exe is
         batch_params.ncsd_path = realpath(join(dir_name, "ncsd-it.exe"))
@@ -117,15 +117,15 @@ def create_dirs(default_data, dict_list):
     # for each set of inputs
     batch_paths = []
     for man_params_dict in dict_list:
-        man_params = MinParams(**man_params_dict)
-        batch_paths.append(populate_dir(default_data, man_params))
+        man_params = ManParams(**man_params_dict)
+        batch_paths.append(populate_dir(default_data, man_params, paths))
     # return list of paths to be run
     return batch_paths
 
-def ncsd_multi_run(man_params, run=True):
+def ncsd_multi_run(man_params, paths, run=True):
     # check manual input
     print("checking manual input")
-    manual_input_check(man_params)
+    manual_input_check(man_params, paths)
     
     
     # if reading data from mfdp template (deprecated)
@@ -140,7 +140,7 @@ def ncsd_multi_run(man_params, run=True):
     # list of dicts which contain parameters for each run
     list_of_dicts = prepare_input(man_params)
     # creates directories with runnable batch files
-    batch_paths = create_dirs(default_data, list_of_dicts)
+    batch_paths = create_dirs(default_data, list_of_dicts, paths)
 
     # run all batch paths if wanted
     if run:

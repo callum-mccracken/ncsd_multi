@@ -3,7 +3,7 @@ as well as the mfdp template file"""
 
 from os.path import join
 from .data_structures import MFDPParams, BatchParams
-from .formats import kappa_rename_format
+from .formats import kappa_rename_format, potential_end_bit_format
 
 def Nmin_HO(Z):
     """helper function for Ngs_func"""
@@ -61,7 +61,7 @@ def nucleus(Z, N):
     return element_name[Z] + str(Z+N)
 
 
-def calc_params(run_dir, min_params, default_params):
+def calc_params(run_dir, paths, min_params, default_params):
     """
         calc_params(MinParams instance, MFDPParams instance)
         --> MFDPParams, BatchParams to be written into a folder for an NCSD run
@@ -70,6 +70,7 @@ def calc_params(run_dir, min_params, default_params):
         parameters input by the user (min_params) and a set of parameters from
         a mfdp file (user just specifies location)
     """
+    int_dir, ncsd_path = paths
     # for convenience of typing let's make a couple smaller variable names:
     m = min_params
     d = default_params
@@ -112,8 +113,7 @@ def calc_params(run_dir, min_params, default_params):
     # now put all these parameters in a convenient container
     mfdp_parameters = MFDPParams(
         # can calculate easily from min_params:
-        two_body_interaction = join(
-            m.interactions_directory, m.two_body_interaction),
+        two_body_interaction = join(int_dir, m.two_body_interaction),
         two_body_file_type = m.two_body_interaction[5],
         Z = m.Z,
         N = m.N,  
@@ -122,7 +122,7 @@ def calc_params(run_dir, min_params, default_params):
         N_1max = m.N_1max,
         N_12max = m.N_12max,
         parity = 0 if (Nhw % 2 == 0) else 1,
-        total_2Mz = 0 if ((m.Z + m.N) % 2 == 0) else 1,
+        total_2Jz = 0 if ((m.Z + m.N) % 2 == 0) else 1,
         interaction_type = m.interaction_type,
         n_states = m.n_states,
         iterations_required = m.iterations_required,
@@ -133,11 +133,10 @@ def calc_params(run_dir, min_params, default_params):
         kappa_points = m.kappa_points,
         kappa_vals = m.kappa_vals,
         kappa_restart = m.kappa_restart,
-        three_body_interaction = join(
-            m.interactions_directory, m.three_body_interaction),
+        three_body_interaction = join(int_dir, m.three_body_interaction),
         N_123max = m.N_123max,
         saved_pivot = m.saved_pivot,
-        rmemavail = m.rmemavail,
+        rmemavail = m.mem_per_core,
         # copied from read_params
         N_min = d.N_min,
         iham = d.iham,
@@ -200,13 +199,19 @@ def calc_params(run_dir, min_params, default_params):
         # add each mv line
         kappa_rename += kappa_rename_format.format(
             kappa_D=kappa_D(kappa), kappa_em=kappa_em(kappa)) + "\n"
+    
+    potential_end = ""
+    if IT_Nmax != "":
+        print("yeet")
+        potential_end = potential_end_bit_format.format(
+            IT_Nmax = IT_Nmax, kappa_rename = kappa_rename)
 
     # organize parameters
     batch_parameters = BatchParams(
         run_directory = run_dir,
         account = "rrg-navratil",
-        ntasks = m.ntasks,
-        mem_per_cpu = str(int(m.rmemavail * 1024))+"M",
+        ntasks = m.n_mpi_tasks,
+        mem_per_cpu = str(int(m.mem_per_core * 1024))+"M",
         time = m.time,
         output = "ncsd-%J.out",
         potential = m.potential_name,
@@ -214,10 +219,9 @@ def calc_params(run_dir, min_params, default_params):
         hbar_omega = int(m.hbar_omega),
         suffix = "_"+str(m.n_states)+"st",
         Ngs = Ngs,
-        ncsd_path = m.ncsd_path,
+        ncsd_path = ncsd_path,
         non_IT_Nmax = non_IT_Nmax,
-        IT_Nmax = IT_Nmax,
-        kappa_rename = kappa_rename
+        potential_end_bit = potential_end
         )
     return mfdp_parameters, batch_parameters
 
