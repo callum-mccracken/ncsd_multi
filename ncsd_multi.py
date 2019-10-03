@@ -29,14 +29,14 @@ except KeyError:
 ncsd_path = join(this_dir, "ncsd-it.exe")
 
 ## set machine name, make sure it's valid
-machine = "cedar" 
+machine = "summit" 
 assert machine in ["cedar", "summit"]
 
 ## PARAMETERS -- specify all as single parameter or list []
 man_params = ManParams(
     # nucleus details:
     Z = 3,  # number of protons
-    N = [5,6],  # number of neutrons
+    N = 5,  # number of neutrons
     hbar_omega = 20,  # harmonic oscillator frequency
     N_1max = 9,  # highest possible excited state of 1 nucleon
     N_12max = 10,  # highest possible state of 2 nucleons, added
@@ -65,16 +65,15 @@ man_params = ManParams(
     saved_pivot = "F",  # "T" or "F", whether or not to use the saved pivot
 
     # machine-related parameters:
-    # only the required ones will be used, leave the other ones as-is.
+    # only the required ones will be used, leave the other ones as-is.    
+    time = "0 8 0", # runtime, "days hours minutes". It will be formatted later
     
-    # input time as "days hours minutes". It will be properly formatted later
-    time = "0 8 0",  # max allowed wall time for the program to runs
-    # cedar
+    # cedar-specific
     mem_per_core = 16.0, # memory per core, in GB
     nodes = 17,  # number of 48-core nodes
-    # summit
+    
+    # summit-specific
     n_nodes = 1024  # number of nodes -- # of resource sets is calculated later
-    # TODO: do we need to manually adjust any others?
 )
 
 ## other default parameters can be found at the bottom of data_structures.py
