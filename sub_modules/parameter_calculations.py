@@ -215,8 +215,10 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
         batch_parameters = CedarBatchParams(
             run_directory = run_dir,
             account = "rrg-navratil",
-            ntasks = m.n_mpi_tasks,
-            mem_per_cpu = str(int(m.mem_per_core * 1024))+"M",
+            nodes = m.nodes,
+            tasks_per_node = d.tasks_per_node,
+            mem_per_core = m.mem_per_core,
+            mem = d.mem,
             time = cedar_time,
             output = "ncsd-%J.out",
             potential = m.potential_name,

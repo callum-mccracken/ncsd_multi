@@ -8,9 +8,9 @@ from .data_structures \
 from .data_checker import manual_input_check, check_mfdp_read
 
 class FileManager(object):
-    """general class for dealing with files
+    """general class for dealing with files, has a general write function
     
-    I thought about making a general read function but decided against it
+    I thought about making a general read function too, but decided against it
     since each read function would be so different, and for some file types
     we don't need a read function
     """

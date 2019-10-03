@@ -27,14 +27,16 @@ man_keys = [
     "saved_pivot", 
     "mem_per_core", 
     "time", 
-    "n_mpi_tasks", 
     "potential_name",
+    "nodes",
     "n_nodes"]
 cedar_batch_keys = [
     "run_directory",
     "account",
-    "ntasks",
-    "mem_per_cpu",
+    "nodes",
+    "tasks_per_node",
+    "mem_per_core",
+    "mem",
     "time",
     "output",
     "potential",
@@ -62,7 +64,6 @@ summit_batch_keys = [
     "non_IT_Nmax",
     "potential_end_bit"
     ]
-print(summit_batch_keys)
 mfdp_keys = [
     "output_file",
     "two_body_interaction",
@@ -138,7 +139,9 @@ default_keys = [
     "glp",
     "gln",
     "gsp",
-    "gsn"]
+    "gsn",
+    "mem",
+    "tasks_per_node"]
 
 class Params(object):
     """I created this rather than just using dictionaries or something
@@ -240,4 +243,6 @@ DefaultParamsObj = DefaultParams(
     gln = 0.0,
     gsp = 5.586,
     gsn = -3.826,
+    mem = 0,
+    tasks_per_node = 48
 )

@@ -29,7 +29,7 @@ except KeyError:
 ncsd_path = join(this_dir, "ncsd-it.exe")
 
 ## set machine name, make sure it's valid
-machine = "summit" 
+machine = "cedar" 
 assert machine in ["cedar", "summit"]
 
 ## PARAMETERS -- specify all as single parameter or list []
@@ -71,9 +71,9 @@ man_params = ManParams(
     time = "0 8 0",  # max allowed wall time for the program to runs
     # cedar
     mem_per_core = 16.0, # memory per core, in GB
-    n_mpi_tasks = 200,  # number of MPI tasks
+    nodes = 17,  # number of 48-core nodes
     # summit
-    n_nodes = 1024  # number of nodes -- num of resource sets is calculated
+    n_nodes = 1024  # number of nodes -- # of resource sets is calculated later
     # TODO: do we need to manually adjust any others?
 )
 
