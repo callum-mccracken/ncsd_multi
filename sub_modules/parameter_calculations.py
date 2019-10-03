@@ -217,7 +217,7 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
             account = "rrg-navratil",
             nodes = m.nodes,
             tasks_per_node = d.tasks_per_node,
-            mem_per_core = m.mem_per_core,
+            mem_per_core = int(m.mem_per_core),
             mem = d.mem,
             time = cedar_time,
             output = "ncsd-%J.out",
