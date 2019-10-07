@@ -5,9 +5,9 @@ ncsd_multi.py file look cleaner.
 
 """
 # built-in modules
-from os import system, chdir, mkdir
+from os import system, chdir, mkdir, symlink
 from os.path import realpath, join, exists, abspath
-from shutil import rmtree, copyfile
+from shutil import rmtree
 
 # our modules
 from .data_structures import ManParams
@@ -94,7 +94,7 @@ def create_dirs(defaults, dict_list, paths, machine):
         
         print("writing files")
         # copy ncsd-it.exe
-        copyfile(ncsd_path, batch_params.ncsd_path)
+        symlink(ncsd_path, batch_params.ncsd_path)
         
         # write mfdp.dat file
         mfdp_path = realpath(join(dir_name, "mfdp.dat"))
