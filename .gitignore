@@ -13,6 +13,7 @@ lib64
 **/ncsd_runs*
 **.dat
 **batch*
+**.exe
 **/anna_code*
 **.DS_Store
 **.json
