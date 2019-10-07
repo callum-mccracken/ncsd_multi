@@ -122,7 +122,6 @@ def create_dirs(defaults, dict_list, paths, machine):
 
 def ncsd_multi_run(man_params, paths, machine, run=True):
     # check manual input
-    print("checking manual input")
     manual_input_check(man_params, machine, paths)
 
     # get default parameters
