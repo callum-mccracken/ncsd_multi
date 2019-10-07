@@ -11,6 +11,8 @@ lib64
 **.pyc
 **.pyo
 **/ncsd_runs*
+**.dat
+**batch*
 **/anna_code*
 **.DS_Store
 **.json

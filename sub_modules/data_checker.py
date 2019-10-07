@@ -10,7 +10,7 @@ def manual_input_check(manual_params, machine, paths):
     print("checking manual input")
     m = manual_params  # so we don't have to type out manual_params everywhere
     
-    int_dir, ncsd_path = paths
+    int_dir, ncsd_path, working_dir = paths
     # do we have a 3-body interaction?
     three_body = (abs(m.interaction_type) == 3)
     
@@ -18,7 +18,9 @@ def manual_input_check(manual_params, machine, paths):
     if not exists(int_dir):
         raise IOError("Interactions directory " + \
             int_dir + " does not exist")
-
+    if not exists(working_dir):
+        raise IOError("Working directory " + \
+            working_dir + " does not exist")
     f2 = join(int_dir, m.two_body_interaction)
     if not exists(f2):
         raise IOError("Two body file "+f2+" does not exist")

@@ -70,7 +70,7 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
         parameters input by the user (min_params) and a set of parameters from
         a mfdp file (user just specifies location)
     """
-    int_dir, ncsd_path = paths
+    int_dir, ncsd_path, working_dir = paths
     # for convenience of typing let's make a couple smaller variable names:
     m = min_params
     d = default_params

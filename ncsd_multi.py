@@ -14,7 +14,6 @@ from sub_modules.data_structures import ManParams
 from sub_modules.ncsd_multi_run import ncsd_multi_run
 
 sys.tracebacklimit = 0 # If debugging comment this out! It suppresses tracebacks
-this_dir = split(realpath(__file__))[0]  # this file's directory
 
 # check if INT_DIR environment variable exists, create it if not
 try:
@@ -25,8 +24,9 @@ except KeyError:
     system(". ~/.bash_profile")
     int_dir = environ["INT_DIR"]
 
-## change this if you're not using the ncsd in the same directory as this script
-ncsd_path = join(this_dir, "ncsd-it.exe")
+## change these to suit your needs, but don't remove the "realpath"
+ncsd_path = realpath("ncsd-it.exe")
+working_dir = realpath("")  # default = empty string = this file's directory
 
 ## set machine name, make sure it's valid
 machine = "summit" 
@@ -80,5 +80,5 @@ man_params = ManParams(
 ## (which is in the sub_modules directory)
 
 ## "run" parameter controls whether or not to run all batch files at the end
-paths = [int_dir, ncsd_path]
+paths = [int_dir, ncsd_path, working_dir]
 ncsd_multi_run(man_params, paths, machine, run=True)

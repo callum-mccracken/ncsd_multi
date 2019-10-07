@@ -62,29 +62,23 @@ def create_dirs(defaults, dict_list, paths, machine):
     def populate_dir(defaults, man_params, paths, machine):
         """
             Each folder will need:
-            - mfdp.dat --> we'll create this from defaults + manual input
-            - ncsd-it.exe --> just copy it
-            - batch_ncsd --> we'll create this too
+            - mfdp.dat
+            - batch_ncsd
+            we'll create these from defaults + manual input
         """
+        int_dir, ncsd_path, working_dir = paths
 
-        chdir(realpath(join(__file__, "..", "..")))
-        int_dir, ncsd_path = paths
-
-        # create master directory to hold runs
-        master_folder = "ncsd_runs"
-        if not exists(master_folder):
-            print("creating directory "+realpath(master_folder))
-            mkdir(master_folder)
+        chdir(working_dir)
 
         # make a directory for run
         run_name = nucleus(man_params.Z, man_params.N)
-        dir_name = realpath(join(master_folder, run_name)) 
+        dir_name = realpath(join(working_dir, run_name)) 
         # ensure we don't overwrite
         if exists(dir_name):
             new_name = input("Run '"+run_name+"' already exists. \n"\
                 "Enter new name, or hit enter to overwrite: ")
             if new_name:
-                dir_name = realpath(join(master_folder, new_name))
+                dir_name = realpath(join(working_dir, new_name))
             else:
                 #remove it and start from scratch    
                 rmtree(dir_name)
