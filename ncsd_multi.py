@@ -73,4 +73,4 @@ man_params = ManParams(
 # (which is in the sub_modules directory)
 
 paths = [int_dir, ncsd_path, working_dir]
-ncsd_multi_run(man_params, paths, machine, run=True)  # run all batch scripts?
+ncsd_multi_run(man_params, paths, machine, run=False)  # run all batch scripts?
