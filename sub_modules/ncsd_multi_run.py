@@ -1,8 +1,6 @@
 """
-the module that calls everything once we have the input. This just makes the 
+the module that calls everything once we have the input. This just makes the
 ncsd_multi.py file look cleaner.
-
-
 """
 # built-in modules
 from os import system, chdir, mkdir, symlink
@@ -26,13 +24,12 @@ def prepare_input(m_params):  # m_params for manual params
         if type(value) != list:
             m_dict[key] = [value]
 
-
-    # now length of longest list = number of unique runs
+    #  now length of longest list = number of unique runs
     num_runs = len(max(list(m_dict.values()), key=len))
 
     """
-        Now for all other parameters make a list of length num_runs with duplicates
-        of the last element if there aren't enough.
+        Now for all other parameters make a list of length num_runs with
+        duplicates of the last element if there aren't enough.
 
         For example, if num_runs is 4 and I've specified some parameter as...
         1 --> [1,1,1,1]
@@ -48,7 +45,7 @@ def prepare_input(m_params):  # m_params for manual params
                 m_dict[key].append(value[-1])
 
     # now make one dict for each mfdp file:
-    dict_list = []  
+    dict_list = []
     for i in range(num_runs):
         new_dict = {}
         for key, value in m_dict.items():
@@ -56,8 +53,10 @@ def prepare_input(m_params):  # m_params for manual params
         dict_list.append(new_dict)
     return dict_list
 
+
 def create_dirs(defaults, dict_list, paths, machine):
-    print("creating directories to store run files")    
+    print("creating directories to store run files")
+
     # the creation of this function was mostly to get intellisense to chill
     def populate_dir(defaults, man_params, paths, machine):
         """
@@ -72,43 +71,44 @@ def create_dirs(defaults, dict_list, paths, machine):
 
         # make a directory for run
         run_name = nucleus(man_params.Z, man_params.N)
-        dir_name = realpath(join(working_dir, run_name)) 
+        dir_name = realpath(join(working_dir, run_name))
         # ensure we don't overwrite
         if exists(dir_name):
-            new_name = input("Run '"+run_name+"' already exists. \n"\
+            new_name = input(
+                "Run '"+run_name+"' already exists. \n"
                 "Enter new name, or hit enter to overwrite: ")
             if new_name:
                 dir_name = realpath(join(working_dir, new_name))
             else:
-                #remove it and start from scratch    
+                #  remove it and start from scratch
                 rmtree(dir_name)
         print("making run directory "+dir_name)
         mkdir(dir_name)
-        
+
         # now actually calculate the parameters to write out
         [mfdp_params, batch_params] = calc_params(
             dir_name, paths, man_params, defaults.params, machine)
 
         # be sure that all the batch files actually know where their exe is
         batch_params.ncsd_path = realpath(join(dir_name, "ncsd-it.exe"))
-        
+
         print("writing files")
         # copy ncsd-it.exe
         symlink(ncsd_path, batch_params.ncsd_path)
-        
+
         # write mfdp.dat file
         mfdp_path = realpath(join(dir_name, "mfdp.dat"))
         MFDP(filename=mfdp_path, params=mfdp_params).write()
-        
+
         # before writing bacth file, convert ncsd_path to relative path
         batch_params.ncsd_path = relpath(batch_params.ncsd_path, dir_name)
 
         # write batch file
         batch_path = realpath(join(dir_name, "batch_ncsd"))
         if machine == "cedar":
-           CedarBatch(filename=batch_path, params=batch_params).write()
+            CedarBatch(filename=batch_path, params=batch_params).write()
         elif machine == "summit":
-           SummitBatch(filename=batch_path, params=batch_params).write()
+            SummitBatch(filename=batch_path, params=batch_params).write()
 
         # then tell the program where it is so we can run it later
         return batch_path
@@ -122,6 +122,7 @@ def create_dirs(defaults, dict_list, paths, machine):
         )
     # return list of paths to be run
     return batch_paths
+
 
 def ncsd_multi_run(man_params, paths, machine, run=True):
     # check manual input

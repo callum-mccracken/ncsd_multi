@@ -151,4 +151,3 @@ done
 """
 
 kappa_rename_format = """mv mfdp_${{N}}{kappa_D}.egv mfdp_${{N}}_{kappa_D}.egv_${{iNu}}_${{potential}}_Nmax${{Nmax}}.${{freq}}_IT_kmin{kappa_em}${{suf}}"""
-

@@ -4,12 +4,13 @@ from os.path import exists
 from .formats import mfdp_format, cedar_batch_format, summit_batch_format
 from .data_structures \
     import Params, MFDPParams, DefaultParamsObj, \
-        mfdp_keys, cedar_batch_keys, summit_batch_keys, default_keys
+    mfdp_keys, cedar_batch_keys, summit_batch_keys, default_keys
 from .data_checker import manual_input_check, check_mfdp_read
+
 
 class FileManager(object):
     """general class for dealing with files, has a general write function
-    
+
     I thought about making a general read function too, but decided against it
     since each read function would be so different, and for some file types
     we don't need a read function
@@ -42,6 +43,7 @@ class FileManager(object):
         with open(self.filename, 'w+') as open_file:
             open_file.write(self.format_string.format(**self.param_dict()))
 
+
 class MFDP(FileManager):
     """
     class for reading / writing mfdp.dat files
@@ -52,18 +54,18 @@ class MFDP(FileManager):
         if params is not None:
             self.params = params
         elif exists(filename):
-            self.read() 
+            self.read()
         elif not exists(filename):
             raise IOError("filename "+filename+" does not exist!")
         else:
-            raise IOError("must have either a params object or a filename")  
+            raise IOError("must have either a params object or a filename")
 
     def read(self):
         """this is old, sketchy, and deprecated! Don't use if you can avoid!"""
         # open file, grab text
         with open(self.filename, "r") as open_file:
             lines = open_file.readlines()
-        
+
         # get parameters from each line (brace yourself, this is long...):
         line_num = 0  # for counting lines, but in a weird way
         occupation_string = ""  # we'll need this later too
@@ -153,9 +155,10 @@ class MFDP(FileManager):
                 line_num += 1
             elif line_num == 19:
                 # numbers are words with digits but no letters
-                numbers = [word for word in words
-                    if any(char.isdigit() for char in word)
-                    and not any(char.isalpha() for char in word)]
+                numbers = [
+                    word for word in words
+                    if (any(char.isdigit() for char in word) and not
+                        any(char.isalpha()) for char in word)]
                 kappa_vals = " ".join(numbers)
                 line_num += 1
             elif line_num == 20:
@@ -184,71 +187,73 @@ class MFDP(FileManager):
 
         # arrange parameters in a MFDPParams object
         params = MFDPParams(
-            output_file = output_file,
-            two_body_interaction = two_body_interaction,
-            two_body_file_type = two_body_file_type,
-            Z = Z,
-            N = N,  
-            hbar_omega = hbar_omega,
-            Nhw = Nhw,
-            N_min = N_min,
-            N_1max = N_1max,
-            N_12max = N_12max,
-            parity = parity,
-            total_2Jz = total_2Jz,
-            iham = iham,
-            iclmb = iclmb,
-            strcm = strcm,
-            interaction_type = interaction_type,
-            major = major,
-            nshll = nshll,
-            occupation_string = occupation_string,
-            nsets = nsets,
-            min_nesp = min_nesp,
-            nskip = nskip,
-            iset1 = iset1,
-            ki = ki,
-            kf = kf,
-            n_states = nstates,
-            gs_energy = gs_energy, 
-            iterations_required = iterations_required,
-            igt = igt,
-            irest = irest,
-            nhme = nhme,
-            nhw0 = nhw0, 
-            nhw_min = nhw_min,
-            nhw_restart = nhw_restart,
-            kappa_points = kappa_points,
-            cmin = cmin,
-            kappa_restart = kappa_restart,
-            kappa_vals = kappa_vals,
-            convergence_delta = convergence_delta,
-            three_body_interaction = three_body_interaction,
-            N_123max = N_123max,
-            eff_charge_p = eff_charge_p,
-            eff_charge_n = eff_charge_n,
-            glp = glp,
-            gln = gln,
-            gsp = gsp,
-            gsn = gsn,
-            saved_pivot = saved_pivot,
-            rmemavail = rmemavail)
+            output_file=output_file,
+            two_body_interaction=two_body_interaction,
+            two_body_file_type=two_body_file_type,
+            Z=Z,
+            N=N,
+            hbar_omega=hbar_omega,
+            Nhw=Nhw,
+            N_min=N_min,
+            N_1max=N_1max,
+            N_12max=N_12max,
+            parity=parity,
+            total_2Jz=total_2Jz,
+            iham=iham,
+            iclmb=iclmb,
+            strcm=strcm,
+            interaction_type=interaction_type,
+            major=major,
+            nshll=nshll,
+            occupation_string=occupation_string,
+            nsets=nsets,
+            min_nesp=min_nesp,
+            nskip=nskip,
+            iset1=iset1,
+            ki=ki,
+            kf=kf,
+            n_states=nstates,
+            gs_energy=gs_energy,
+            iterations_required=iterations_required,
+            igt=igt,
+            irest=irest,
+            nhme=nhme,
+            nhw0=nhw0,
+            nhw_min=nhw_min,
+            nhw_restart=nhw_restart,
+            kappa_points=kappa_points,
+            cmin=cmin,
+            kappa_restart=kappa_restart,
+            kappa_vals=kappa_vals,
+            convergence_delta=convergence_delta,
+            three_body_interaction=three_body_interaction,
+            N_123max=N_123max,
+            eff_charge_p=eff_charge_p,
+            eff_charge_n=eff_charge_n,
+            glp=glp,
+            gln=gln,
+            gsp=gsp,
+            gsn=gsn,
+            saved_pivot=saved_pivot,
+            rmemavail=rmemavail)
 
         # do a couple quick checks here, then use check_mfdp_read for the rest
         if nhw_max != Nhw:
             raise ValueError("the value of nhw_max must be equal to Nhw")
         if N_1max != N_1max_verif:
-            raise ValueError("N_1max from under the 3-body file doesn't match")
+            raise ValueError("N_1max from under 3-body file doesn't match")
         if N_12max != N_12max_verif:
-            raise ValueError("N_12max from under the 3-body file doesn't match")
+            raise ValueError("N_12max from under 3-body file doesn't match")
         check_mfdp_read(params)
         self.params = params
+
 
 class CedarBatch(FileManager):
     """ class for writing batch files for NCSD code, on Cedar machine """
     def __init__(self, filename="batch_ncsd", params=None):
         super(CedarBatch, self).__init__("CEDAR_BATCH", filename)
         self.params = params
+
 
 class SummitBatch(FileManager):
     """ class for writing batch files for NCSD code, on Summit machine """
@@ -260,7 +265,6 @@ class SummitBatch(FileManager):
 class Defaults(FileManager):
     # it's not actually a type of file but I had some code for MFDP files
     # that I wanted to use with defaults, so I made this
-    def __init__(self,
-       filename="defaults are not from a file", params=DefaultParamsObj):
+    def __init__(self, filename="defaults", params=DefaultParamsObj):
         super(Defaults, self).__init__("DEFAULT", filename)
         self.params = params
