@@ -1,7 +1,7 @@
 """Module for calculating parameters for files from user input
 as well as the mfdp template file"""
 
-from os.path import join
+from os.path import join, relpath
 from .data_structures import MFDPParams, CedarBatchParams, SummitBatchParams
 from .formats import kappa_rename_format, potential_end_bit_format
 
@@ -107,13 +107,22 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
             p_plus_n = (m.Z + m.N) if (m.Z + m.N) * N <= Nhw else int(Nhw / N) 
             line = " 0 {p}  0 {n}  0 {p_plus_n}  ".format(
                 p=p, n=n, p_plus_n=p_plus_n)
-        line += "! N={N}\n".format(N=N)
+        line += "! N={N}".format(N=N)
+        if N != m.N_1max:
+            line += "\n"
         occupation_string += line
+
+    # make relative paths for interaction files
+    two_path = relpath(join(int_dir, m.two_body_interaction), working_dir)
+    three_path = relpath(join(int_dir, m.three_body_interaction), working_dir)
+    # remove _comp at the end in case it was given by accident
+    if three_path[-5:] == "_comp":
+        three_path = three_path[:-5]
 
     # now put all these parameters in a convenient container
     mfdp_parameters = MFDPParams(
         # can calculate easily from min_params:
-        two_body_interaction = join(int_dir, m.two_body_interaction),
+        two_body_interaction = two_path,
         two_body_file_type = m.two_body_interaction[5],
         Z = m.Z,
         N = m.N,  
@@ -133,7 +142,7 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
         kappa_points = m.kappa_points,
         kappa_vals = m.kappa_vals,
         kappa_restart = m.kappa_restart,
-        three_body_interaction = join(int_dir, m.three_body_interaction),
+        three_body_interaction = three_path,
         N_123max = m.N_123max,
         saved_pivot = m.saved_pivot,
         rmemavail = m.mem_per_core,
@@ -166,15 +175,17 @@ def calc_params(run_dir, paths, min_params, default_params, machine):
         output_file = output_file
     )
 
-    # now do the batch file's bottom section to do with renaming    
-    # the expressions here are a little gross, but we just take the numbers,
-    # make them strings, and join them with spaces: something like " 0 2 4 6"
-    non_IT_Nmax = " ".join(map(str, list(
-        range(m.Nmax_min, nhw_min, 2))))  # from Nmax_min...
-    IT_Nmax = " ".join(map(str, list(
-        range(nhw_min, m.Nmax_max + 1, 2))))  # up to Nmax_max
-
-    # a few functions for converting kappa values
+    # Now do the batch file's bottom section to do with renaming files.   
+    non_IT_Nmax = ""
+    for i in range(m.Nmax_min, nhw_min, 2):
+        if i <= m.Nmax_max:
+            non_IT_Nmax += str(i)+" "
+    IT_Nmax = ""
+    for i in range(nhw_min, m.Nmax_max + 1, 2):
+        if i <= m.Nmax_max:
+            IT_Nmax +=  str(i)+" "
+    
+    # a few functions for converting kappa values to the formats we want
     def kappa_D(kappa_given):
         """2.0 --> 0.200D-04"""
         kappa_e4 = kappa_given * pow(10, -4)

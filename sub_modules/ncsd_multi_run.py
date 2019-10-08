@@ -6,7 +6,7 @@ ncsd_multi.py file look cleaner.
 """
 # built-in modules
 from os import system, chdir, mkdir, symlink
-from os.path import realpath, join, exists, abspath
+from os.path import realpath, join, exists, abspath, relpath
 from shutil import rmtree
 
 # our modules
@@ -100,6 +100,9 @@ def create_dirs(defaults, dict_list, paths, machine):
         mfdp_path = realpath(join(dir_name, "mfdp.dat"))
         MFDP(filename=mfdp_path, params=mfdp_params).write()
         
+        # before writing bacth file, convert ncsd_path to relative path
+        batch_params.ncsd_path = relpath(batch_params.ncsd_path, dir_name)
+
         # write batch file
         batch_path = realpath(join(dir_name, "batch_ncsd"))
         if machine == "cedar":

@@ -10,12 +10,21 @@ and it'll run multiple ncsd jobs for you.
 
 `git clone` this, or if you're on Cedar you can find a clone in `exch`.
 
-`git pull origin master` to get the latest version. 
+To get the latest version (*note that this removes any local changes*), do:
+
+`git fetch --all`
+
+`git reset --hard origin/master`
 
 Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
 
+- `ncsd_path = realpath("ncsd-it.exe")`
+  - edit this so it's the path to your ncsd executable file
+  - relative paths are okay inside the `realpath()` function
+- `working_dir = realpath("")`
+  - make this the path to the directory where to want to complete the ncsd runs
 
-```
+```    
     manual_params = ManParams(
         ...
         Z = 3,  # number of protons
@@ -26,18 +35,17 @@ Then you'll need to open `ncsd_multi.py` and enter a bunch of parameters:
         ...
     )
 ```
+  - enter your calculation-related parameters here
 
-And at the end there's a line `ncsd_multi_run(min_params, run=True)`.
+- `ncsd_multi_run(man_params, run=True)`
+  - change the `True` to `False` if you don't want to run all batch files
 
-Change the `True` to `False` if you don't want to run all batch files.
-
-There are other parameters which are set by default.
-
-The defaults can be changed by going to the very bottom of `data_structures.py`
-and editing the inputs to `DefaultParamsObj`.
+- There are other parameters which are set by default, e.g. `iclmb`
+  - Those can be changed by going to the very bottom of `data_structures.py`
+    and editing the inputs to `DefaultParamsObj`
 
 
-To do multiple runs, simply specify a variable as a list,
+### To do multiple runs, simply specify at least one variable as a list.
 e.g. `Z = [3,4,5]` will make 3 different runs.
 
 Make sure that your variables are well ordered if more than one is changing,
@@ -65,5 +73,4 @@ Note: make sure to edit the 3-body parameters if `abs(interaction_type) == 3`.
 
 Just Python (3.7.4 ideally, other versions may work).
 
-Also if you don't want to use the version of `ncsd-it.exe` that ships with this repository,
-make sure you know the full path to the one you do want to use.
+You'll need an executable ncsd file and interaction files too, of course.

@@ -5,6 +5,17 @@ import os
 import re
 from .parameter_calculations import Ngs_func
 
+def get_int_dir():
+    """check if INT_DIR environment variable exists, create it if not"""
+    try:
+        int_dir = os.environ["INT_DIR"]
+    except KeyError:
+        int_dir = input("Enter the (full path) directory where your interactions are stored: ")
+        os.system("echo 'export INT_DIR=\""+int_dir+"\"\n' >> ~/.bash_profile")
+        os.system(". ~/.bash_profile")
+    return int_dir
+
+
 def manual_input_check(manual_params, machine, paths):
     """checks manual input to ensure it is at least self-consistent"""
     print("checking manual input")
