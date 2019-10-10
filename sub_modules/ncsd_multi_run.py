@@ -4,7 +4,7 @@ ncsd_multi.py file look cleaner.
 """
 # built-in modules
 from os import system, chdir, mkdir, symlink
-from os.path import realpath, join, exists, abspath, relpath
+from os.path import realpath, join, exists, relpath
 from shutil import rmtree
 
 # our modules
@@ -91,7 +91,7 @@ def create_dirs(defaults, dict_list, paths, machine):
 
         # be sure that all the batch files actually know where their exe is
         batch_params.ncsd_path = realpath(join(dir_name, "ncsd-it.exe"))
-
+        
         print("writing files")
         # copy ncsd-it.exe
         symlink(ncsd_path, batch_params.ncsd_path)
@@ -105,6 +105,12 @@ def create_dirs(defaults, dict_list, paths, machine):
         # ensure ncsd path has a ./ if needed
         if "/" not in batch_params.ncsd_path:
             batch_params.ncsd_path = "./" + batch_params.ncsd_path
+
+        # convert interaction files to relative paths too
+        batch_params.two_body_interaction = relpath(
+            batch_params.two_body_interaction, dir_name)
+        batch_params.three_body_interaction = relpath(
+            batch_params.three_body_interaction, dir_name)
 
         # write batch file
         batch_path = realpath(join(dir_name, "batch_ncsd"))

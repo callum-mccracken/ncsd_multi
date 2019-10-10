@@ -1,7 +1,7 @@
 """Module for calculating parameters for files from user input
 as well as the mfdp template file"""
 
-from os.path import join, relpath
+import os
 from .data_structures import MFDPParams, CedarBatchParams, SummitBatchParams
 from .formats import kappa_rename_format, potential_end_bit_format
 
@@ -72,7 +72,7 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
         Calculates all parameters needed for an NCSD run, using manual
         parameters input by the user (man_params) and a set of defaults
     """
-    int_dir, ncsd_path, working_dir = paths
+    int_dir, ncsd_path, _ = paths
     # for convenience of typing let's make a couple smaller variable names:
     m = man_params
     d = default_params
@@ -113,9 +113,9 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
             line += "\n"
         occupation_string += line
 
-    # make relative paths for interaction files
-    two_path = relpath(join(int_dir, m.two_body_interaction), working_dir)
-    three_path = relpath(join(int_dir, m.three_body_interaction), working_dir)
+    # make paths for interaction filess, we'll make these relative paths later
+    two_path = os.path.join(int_dir, m.two_body_interaction)
+    three_path = os.path.join(int_dir, m.three_body_interaction)
     # remove _comp at the end of 3-body in case it was given by accident
     if three_path[-5:] == "_comp":
         three_path = three_path[:-5]

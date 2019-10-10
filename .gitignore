@@ -18,3 +18,6 @@ lib64
 **.DS_Store
 **.json
 **/ncsd-it.exe
+**TBME**
+**v3trans**
+

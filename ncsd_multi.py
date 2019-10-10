@@ -19,8 +19,8 @@ from sub_modules.data_checker import get_int_dir
 # change these to suit your needs, but don't remove the "realpath"
 # empty string = current working directory, relative paths = relative to cwd
 ncsd_path = realpath("ncsd-it.exe")
-working_dir = realpath("")
-int_dir = realpath("../interactions")
+working_dir = realpath("./gpfs/alpine/nph123/scratch/navratil/")
+int_dir = realpath("./gpfs/alpine/nph123/scratch/navratil/int/")
 # you can also get int_dir from environment variable INT_DIR:
 # int_dir = get_int_dir()
 
