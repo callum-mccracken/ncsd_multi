@@ -86,9 +86,9 @@ def manual_input_check(manual_params, machine, paths):
             else:
                 sys.exit(0)
     except Exception as e:
-        print("Warning:", e)
-        print("Program had issues parsing TBME filename...")
-        print("We assume everything's fine, but double-check!")
+        print("Warning raised when parsing TBME filename:", e)
+        print("TBME filename:", tbme_filename)
+        print("We assume everything's fine, but double-check!\n")
 
     if three_body:
         try:
@@ -133,9 +133,9 @@ def manual_input_check(manual_params, machine, paths):
                 else:
                     sys.exit(0)
         except Exception as e:
-            print("Warning:", e)
-            print("Program had issues parsing 3-body filename...")
-            print("We assume everything's fine, but double-check!")
+            print("Warning raised when parsing 3-body filename:", e)
+            print("3-body filename:", three_filename)
+            print("We assume everything's fine, but double-check!\n")
 
     # check there's at least kappa_points kappa values
     kappa_vals = list(map(float, m.kappa_vals.split()))

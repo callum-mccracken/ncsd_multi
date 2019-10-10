@@ -65,7 +65,7 @@ def create_dirs(defaults, dict_list, paths, machine):
             - batch_ncsd
             we'll create these from defaults + manual input
         """
-        int_dir, ncsd_path, working_dir = paths
+        _, ncsd_path, working_dir = paths
 
         chdir(working_dir)
 
@@ -102,6 +102,9 @@ def create_dirs(defaults, dict_list, paths, machine):
 
         # before writing bacth file, convert ncsd_path to relative path
         batch_params.ncsd_path = relpath(batch_params.ncsd_path, dir_name)
+        # ensure ncsd path has a ./ if needed
+        if "/" not in batch_params.ncsd_path:
+            batch_params.ncsd_path = "./" + batch_params.ncsd_path
 
         # write batch file
         batch_path = realpath(join(dir_name, "batch_ncsd"))
@@ -125,6 +128,7 @@ def create_dirs(defaults, dict_list, paths, machine):
 
 
 def ncsd_multi_run(man_params, paths, machine, run=True):
+    """run ncsd multiple times with given parameters"""
     # check manual input
     manual_input_check(man_params, machine, paths)
 

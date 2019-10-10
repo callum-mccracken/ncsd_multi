@@ -25,10 +25,9 @@ man_keys = [
     "kappa_vals",
     "kappa_restart",
     "saved_pivot",
-    "mem_per_core",
+    "mem",
     "time",
     "potential_name",
-    "nodes",
     "n_nodes"]
 cedar_batch_keys = [
     "run_directory",
@@ -46,7 +45,8 @@ cedar_batch_keys = [
     "Ngs",
     "ncsd_path",
     "non_IT_Nmax",
-    "potential_end_bit"
+    "potential_end_bit",
+    "output_file"
     ]
 summit_batch_keys = [
     "run_directory",
@@ -62,7 +62,8 @@ summit_batch_keys = [
     "Ngs",
     "ncsd_path",
     "non_IT_Nmax",
-    "potential_end_bit"
+    "potential_end_bit",
+    "output_file"
     ]
 mfdp_keys = [
     "output_file",

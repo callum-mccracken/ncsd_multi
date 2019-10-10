@@ -116,7 +116,7 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
     # make relative paths for interaction files
     two_path = relpath(join(int_dir, m.two_body_interaction), working_dir)
     three_path = relpath(join(int_dir, m.three_body_interaction), working_dir)
-    # remove _comp at the end in case it was given by accident
+    # remove _comp at the end of 3-body in case it was given by accident
     if three_path[-5:] == "_comp":
         three_path = three_path[:-5]
 
@@ -146,7 +146,7 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
         three_body_interaction=three_path,
         N_123max=m.N_123max,
         saved_pivot=m.saved_pivot,
-        rmemavail=m.mem_per_core,
+        rmemavail=m.mem,
         # copied from read_params
         N_min=d.N_min,
         iham=d.iham,
@@ -217,8 +217,8 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
         potential_end = potential_end_bit_format.format(
             IT_Nmax=IT_Nmax, kappa_rename=kappa_rename)
 
+    # calculate time
     days, hours, minutes = map(int, m.time.split())
-
     cedar_time = "{}-{:02}:{:02}".format(days, hours, minutes)
     summit_time = "{}:{:02}".format(days*24 + hours, minutes)
 
@@ -227,9 +227,9 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
         batch_parameters = CedarBatchParams(
             run_directory=run_dir,
             account="rrg-navratil",
-            nodes=m.nodes,
+            nodes=m.n_nodes,
             tasks_per_node=d.tasks_per_node,
-            mem_per_core=int(m.mem_per_core),
+            mem_per_core=int(m.mem),
             mem=d.mem,
             time=cedar_time,
             output="ncsd-%J.out",
@@ -240,7 +240,8 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
             Ngs=Ngs,
             ncsd_path=ncsd_path,
             non_IT_Nmax=non_IT_Nmax,
-            potential_end_bit=potential_end
+            potential_end_bit=potential_end,
+            output_file=output_file
         )
     elif machine == "summit":
         batch_parameters = SummitBatchParams(
@@ -257,7 +258,8 @@ def calc_params(run_dir, paths, man_params, default_params, machine):
             Ngs=Ngs,
             ncsd_path=ncsd_path,
             non_IT_Nmax=non_IT_Nmax,
-            potential_end_bit=potential_end
+            potential_end_bit=potential_end,
+            output_file=output_file
         )
     else:
         raise ValueError("What machine are you using?")

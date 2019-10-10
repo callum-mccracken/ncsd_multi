@@ -77,6 +77,7 @@ mv mfdp_${{N}}.egv mfdp_${{N}}.egv_${{iNu}}_${{potential}}_Nmax${{Nmax}}.${{freq
 done
 {potential_end_bit}
 
+mv mfd.log mfd.log_{output_file}
 """
 
 summit_batch_format = """#!/bin/bash
@@ -136,6 +137,8 @@ mv mfdp_${{N}}.egv mfdp_${{N}}.egv_${{iNu}}_${{potential}}_Nmax${{Nmax}}.${{freq
 done
 
 {potential_end_bit}
+
+mv mfd.log mfd.log_{output_file}
 """
 
 

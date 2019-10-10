@@ -14,12 +14,15 @@ from sub_modules.data_structures import ManParams
 from sub_modules.ncsd_multi_run import ncsd_multi_run
 from sub_modules.data_checker import get_int_dir
 
-sys.tracebacklimit = 0  # If debugging comment this out! Suppresses tracebacks
-int_dir = get_int_dir()  # get interaction directory from environment variable
+# sys.tracebacklimit = 0  # If debugging comment this out! Suppresses tracebacks
 
 # change these to suit your needs, but don't remove the "realpath"
+# empty string = current working directory, relative paths = relative to cwd
 ncsd_path = realpath("ncsd-it.exe")
-working_dir = realpath("")  # empty string = current working directory
+working_dir = realpath("")
+int_dir = realpath("../interactions")
+# you can also get int_dir from environment variable INT_DIR:
+# int_dir = get_int_dir()
 
 # set machine name, make sure it's valid
 machine = "summit"
@@ -58,19 +61,13 @@ man_params = ManParams(
     saved_pivot="F",  # "T" or "F", whether or not to use the saved pivot
 
     # machine-related parameters:
-    # only the required ones will be used, leave the other ones as-is.
     time="0 8 0",  # runtime, "days hours minutes". It will be formatted later
-
-    # cedar-specific
-    mem_per_core=16.0,  # memory per core, in GB
-    nodes=17,  # number of 48-core nodes
-
-    # summit-specific
-    n_nodes=1024  # number of nodes -- # of resource sets is calculated later
+    mem=80.0,  # memory, in GB
+    n_nodes=1024  # number of nodes
 )
 
-# other default parameters can be found at the bottom of data_structures.py
+# default parameters can be found at the bottom of data_structures.py
 # (which is in the sub_modules directory)
 
 paths = [int_dir, ncsd_path, working_dir]
-ncsd_multi_run(man_params, paths, machine, run=True)  # run all batch scripts?
+ncsd_multi_run(man_params, paths, machine, run=False)  # run all batch scripts?
