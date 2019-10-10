@@ -71,49 +71,49 @@ def create_dirs(defaults, dict_list, paths, machine):
 
         # make a directory for run
         run_name = nucleus(man_params.Z, man_params.N)
-        dir_name = realpath(join(working_dir, run_name))
+        run_dir = realpath(join(working_dir, run_name))
         # ensure we don't overwrite
-        if exists(dir_name):
+        if exists(run_dir):
             new_name = input(
                 "Run '"+run_name+"' already exists. \n"
                 "Enter new name, or hit enter to overwrite: ")
             if new_name:
-                dir_name = realpath(join(working_dir, new_name))
+                run_dir = realpath(join(working_dir, new_name))
             else:
                 #  remove it and start from scratch
-                rmtree(dir_name)
-        print("making run directory "+dir_name)
-        mkdir(dir_name)
+                rmtree(run_dir)
+        print("making run directory "+run_dir)
+        mkdir(run_dir)
 
         # now actually calculate the parameters to write out
         [mfdp_params, batch_params] = calc_params(
-            dir_name, paths, man_params, defaults.params, machine)
+            run_dir, paths, man_params, defaults.params, machine)
 
         # be sure that all the batch files actually know where their exe is
-        batch_params.ncsd_path = realpath(join(dir_name, "ncsd-it.exe"))
+        batch_params.ncsd_path = realpath(join(run_dir, "ncsd-it.exe"))
         
         print("writing files")
         # copy ncsd-it.exe
         symlink(ncsd_path, batch_params.ncsd_path)
 
+        # convert interaction files to relative paths too
+        mfdp_params.two_body_interaction = relpath(
+            mfdp_params.two_body_interaction, run_dir)
+        mfdp_params.three_body_interaction = relpath(
+            mfdp_params.three_body_interaction, run_dir)
+
         # write mfdp.dat file
-        mfdp_path = realpath(join(dir_name, "mfdp.dat"))
+        mfdp_path = realpath(join(run_dir, "mfdp.dat"))
         MFDP(filename=mfdp_path, params=mfdp_params).write()
 
         # before writing bacth file, convert ncsd_path to relative path
-        batch_params.ncsd_path = relpath(batch_params.ncsd_path, dir_name)
+        batch_params.ncsd_path = relpath(batch_params.ncsd_path, run_dir)
         # ensure ncsd path has a ./ if needed
         if "/" not in batch_params.ncsd_path:
             batch_params.ncsd_path = "./" + batch_params.ncsd_path
 
-        # convert interaction files to relative paths too
-        batch_params.two_body_interaction = relpath(
-            batch_params.two_body_interaction, dir_name)
-        batch_params.three_body_interaction = relpath(
-            batch_params.three_body_interaction, dir_name)
-
         # write batch file
-        batch_path = realpath(join(dir_name, "batch_ncsd"))
+        batch_path = realpath(join(run_dir, "batch_ncsd"))
         if machine == "cedar":
             CedarBatch(filename=batch_path, params=batch_params).write()
         elif machine == "summit":
